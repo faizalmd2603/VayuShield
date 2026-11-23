@@ -77,13 +77,13 @@ export function getStoredTheme(): 'light' | 'dark' {
   try {
     const val = localStorage.getItem(STORAGE_KEYS.THEME);
     if (val === 'light' || val === 'dark') return val;
+    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
   } catch {
-    // Fall back to system preference
+    // Fall back to default
   }
-  return typeof window !== 'undefined' &&
-    window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light';
+  return 'light';
 }
 
 /**

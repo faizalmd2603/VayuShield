@@ -130,7 +130,7 @@ describe('Google Gemini Integration Engine', () => {
     let capturedUrl = '';
     let capturedHeaders: HeadersInit | undefined;
 
-    vi.spyOn(globalThis, 'fetch').mockImplementationOnce((url, init) => {
+    vi.spyOn(globalThis, 'fetch').mockImplementationOnce((url: RequestInfo | URL, init?: RequestInit) => {
       capturedUrl = toUrlString(url);
       capturedHeaders = init?.headers;
       return Promise.resolve({
@@ -197,7 +197,7 @@ describe('Google Gemini Integration Engine', () => {
     let callCount = 0;
     const requestedModels: string[] = [];
 
-    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url: RequestInfo | URL) => {
       callCount++;
       requestedModels.push(toUrlString(url));
 

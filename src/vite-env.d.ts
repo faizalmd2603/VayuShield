@@ -1,9 +1,21 @@
 /// <reference types="vite/client" />
+import 'vitest';
 
-interface ImportMetaEnv {
-  readonly VITE_GEMINI_API_KEY?: string;
+declare global {
+  interface ImportMetaEnv {
+    readonly VITE_GEMINI_API_KEY?: string;
+  }
+
+  interface ImportMeta {
+    readonly env: ImportMetaEnv;
+  }
 }
 
-interface ImportMeta {
-  readonly env: ImportMetaEnv;
+declare module 'vitest' {
+  interface Assertion<_T = unknown> {
+    toHaveNoViolations(): void;
+  }
+  interface AsymmetricMatchersContaining {
+    toHaveNoViolations(): void;
+  }
 }
