@@ -1,4 +1,4 @@
-# VayuShield (वायु शील्ड)
+# VayuShield
 ### Autonomous GenAI Urban Air Quality & Winter Smog Assistant for Families & Communities
 
 [![Production Build](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
