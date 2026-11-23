@@ -1,9 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { fetchSerpApiMapLocation, getGoogleSatelliteUrl } from '../services/mapService';
 
 describe('SerpAPI Google Maps Intelligence Service', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.stubEnv('VITE_SERPAPI_KEY', 'test_serpapi_mock_key');
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it('generates correct Google Maps satellite layer url', () => {
@@ -14,6 +19,12 @@ describe('SerpAPI Google Maps Intelligence Service', () => {
 
   it('returns null for empty query', async () => {
     const res = await fetchSerpApiMapLocation('   ');
+    expect(res).toBeNull();
+  });
+
+  it('returns null when VITE_SERPAPI_KEY is missing', async () => {
+    vi.stubEnv('VITE_SERPAPI_KEY', '');
+    const res = await fetchSerpApiMapLocation('Delhi');
     expect(res).toBeNull();
   });
 

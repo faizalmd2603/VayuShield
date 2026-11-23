@@ -26,3 +26,6 @@ jobs:
 
       - name: Run complete verification pipeline
         run: npm run verify
+        env:
+          VITE_SERPAPI_KEY: mock_ci_serpapi_key
+          VITE_GEMINI_API_KEY: mock_ci_gemini_key
