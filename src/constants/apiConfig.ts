@@ -19,7 +19,7 @@ export const API_CONFIG = {
   },
   OPENROUTER: {
     BASE_URL: 'https://openrouter.ai/api/v1/chat/completions',
-    MODEL: 'google/gemini-2.5-flash',
+    MODEL: 'openrouter/free',
     TIMEOUT_MS: 30_000,
   },
   SERPAPI: {

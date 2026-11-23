@@ -147,52 +147,44 @@ function handleGeminiErrorStatus(status: number): GeminiApiError {
       true
     );
   }
+  if (status === 503) {
+    return new GeminiApiError(
+      'Gemini API is temporarily experiencing high demand (HTTP 503). Engaging resilience fallback...',
+      'TIMEOUT',
+      true
+    );
+  }
   return new GeminiApiError(`Gemini API Error (HTTP ${status})`, 'TIMEOUT', true);
 }
 
 /**
- * Executes a single attempt in the retry loop.
+ * Tries a single model candidate with backoff.
  */
-async function executeRetryAttempt(
+async function attemptSingleModel(
   model: GeminiModelName,
   apiKey: string,
   payload: Record<string, unknown>,
-  attempt: number,
   signal?: AbortSignal
-): Promise<Response> {
-  const res = await callGeminiRest(model, apiKey, payload, signal);
-  if (res.ok) return res;
+): Promise<Response | null> {
+  for (let attempt = 0; attempt <= 1; attempt++) {
+    if (signal?.aborted) {
+      throw new GeminiApiError('Request was aborted', 'ABORTED', true);
+    }
+    const res = await callGeminiRest(model, apiKey, payload, signal);
+    if (res.ok) return res;
 
-  const error = handleGeminiErrorStatus(res.status);
-  if (!error.recoverable || attempt >= API_CONFIG.GEMINI.MAX_RETRIES) {
-    throw error;
+    const err = handleGeminiErrorStatus(res.status);
+    if (!err.recoverable) throw err;
+    if (res.status === 503 || res.status === 429) return null;
+
+    const delay = API_CONFIG.GEMINI.BACKOFF_BASE_MS * Math.pow(2, attempt);
+    await new Promise((resolve) => setTimeout(resolve, delay));
   }
-
-  const delayMs = API_CONFIG.GEMINI.BACKOFF_BASE_MS * Math.pow(2, attempt);
-  await new Promise((resolve) => setTimeout(resolve, delayMs));
-  return res;
-}
-
-function getNextFallbackModel(current: GeminiModelName): GeminiModelName {
-  return current === 'gemini-4-hydrogen'
-    ? API_CONFIG.GEMINI.MODELS.PRIMARY
-    : API_CONFIG.GEMINI.MODELS.DEEP;
-}
-
-function checkRetryError(err: unknown, attempt: number, signal?: AbortSignal): void {
-  if (err instanceof GeminiApiError && !err.recoverable) throw err;
-  if (signal?.aborted) {
-    throw new GeminiApiError('Request was aborted', 'ABORTED', true);
-  }
-  if (attempt >= API_CONFIG.GEMINI.MAX_RETRIES) {
-    throw err instanceof GeminiApiError
-      ? err
-      : new GeminiApiError('Network connection failed', 'NETWORK_OFFLINE');
-  }
+  return null;
 }
 
 /**
- * Calls Gemini with automatic retry and model fallback.
+ * Calls Gemini with automatic retry, exponential backoff, and model fallback.
  */
 async function callWithRetryAndFallback(
   initialModel: GeminiModelName,
@@ -200,20 +192,26 @@ async function callWithRetryAndFallback(
   payload: Record<string, unknown>,
   signal?: AbortSignal
 ): Promise<Response> {
-  let model = initialModel;
+  const modelsToTry: readonly GeminiModelName[] = [
+    initialModel,
+    API_CONFIG.GEMINI.MODELS.PRIMARY,
+    API_CONFIG.GEMINI.MODELS.DEEP,
+  ].filter((m, i, arr) => arr.indexOf(m) === i);
 
-  for (let attempt = 0; attempt <= API_CONFIG.GEMINI.MAX_RETRIES; attempt++) {
+  for (const model of modelsToTry) {
     try {
-      const res = await executeRetryAttempt(model, apiKey, payload, attempt, signal);
-      if (res.ok) return res;
-      model = getNextFallbackModel(model);
+      const res = await attemptSingleModel(model, apiKey, payload, signal);
+      if (res) return res;
     } catch (err: unknown) {
-      checkRetryError(err, attempt, signal);
-      model = getNextFallbackModel(model);
+      if (err instanceof GeminiApiError && !err.recoverable) throw err;
     }
   }
 
-  throw new GeminiApiError('Gemini call failed after retries', 'TIMEOUT');
+  throw new GeminiApiError(
+    'Gemini API is temporarily experiencing high demand (HTTP 503). Engaging resilience fallback...',
+    'TIMEOUT',
+    true
+  );
 }
 
 /**
@@ -267,12 +265,12 @@ async function callPlanAttempt(
 }
 
 async function tryBackupKeyOrOpenRouter(
-  model: GeminiModelName,
+  _model: GeminiModelName,
   payload: Record<string, unknown>,
   request: PlanGenerationRequest,
   promptText: string
 ): Promise<{ readonly text: string | undefined; readonly modelUsed: string } | null> {
-  // 1. Secondary Alternative: OpenRouter
+  // 1. Secondary Alternative: OpenRouter (free tier resilient model)
   if (request.openRouterApiKey) {
     try {
       const openRouterText = await callOpenRouterCompletion({
@@ -280,17 +278,22 @@ async function tryBackupKeyOrOpenRouter(
         prompt: promptText,
         signal: request.signal,
       });
-      return { text: openRouterText, modelUsed: 'openrouter/google/gemini-2.5-flash' };
+      return { text: openRouterText, modelUsed: 'openrouter/free' };
     } catch {
-      // OpenRouter error or 402 credit limit, cascade to backup Gemini key
+      // OpenRouter error, cascade to backup Gemini key
     }
   }
 
-  // 2. Safety Fallback: Gemini Backup Key
+  // 2. Safety Fallback: Gemini Backup Key on fast lite model
   if (request.backupApiKey && request.backupApiKey !== request.apiKey) {
     try {
-      const text = await callPlanAttempt(model, request.backupApiKey, payload, request.signal);
-      return { text, modelUsed: `${model} (backup-key)` };
+      const text = await callPlanAttempt(
+        API_CONFIG.GEMINI.MODELS.PRIMARY,
+        request.backupApiKey,
+        payload,
+        request.signal
+      );
+      return { text, modelUsed: `${API_CONFIG.GEMINI.MODELS.PRIMARY} (backup-key)` };
     } catch {
       // Fallback failed
     }
@@ -412,7 +415,8 @@ async function obtainStreamResponse(
     }
 
     if (request.backupApiKey && request.backupApiKey !== request.apiKey) {
-      const backupRes = await fetch(url, {
+      const fallbackUrl = `${API_CONFIG.GEMINI.BASE_URL}/${API_CONFIG.GEMINI.MODELS.PRIMARY}:streamGenerateContent?alt=sse`;
+      const backupRes = await fetch(fallbackUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-goog-api-key': request.backupApiKey },
         body,
