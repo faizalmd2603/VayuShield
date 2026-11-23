@@ -102,6 +102,24 @@ function extractDeltaFromLine(line: string): string | null {
 }
 
 /**
+ * Consumes an array of OpenRouter SSE lines and dispatches chunks.
+ */
+function consumeDeltaLines(
+  lines: readonly string[],
+  onChunk: (chunk: string) => void
+): string {
+  let textAccum = '';
+  for (const line of lines) {
+    const text = extractDeltaFromLine(line);
+    if (text) {
+      textAccum += text;
+      onChunk(text);
+    }
+  }
+  return textAccum;
+}
+
+/**
  * Streams chat responses from OpenRouter using Server-Sent Events.
  */
 export async function streamOpenRouterChat(
@@ -113,57 +131,61 @@ export async function streamOpenRouterChat(
     throw new GeminiApiError('OpenRouter key missing for stream', 'INVALID_KEY', false);
   }
 
-  const res = await fetch(API_CONFIG.OPENROUTER.BASE_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${trimmed}`,
-      'HTTP-Referer': 'https://vayushield-nine.vercel.app',
-      'X-Title': 'VayuShield',
-    },
-    body: JSON.stringify({
-      model: API_CONFIG.OPENROUTER.MODEL,
-      stream: true,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        ...messages.map((m) => ({
-          role: m.role,
-          content: sanitizeUserInput(m.content),
-        })),
-      ],
-      temperature: 0.4,
-    }),
-    signal,
-  });
-
-  if (!res.ok) {
-    throw new GeminiApiError(`OpenRouter stream failed: HTTP ${res.status}`, 'TIMEOUT');
+  const controller = new AbortController();
+  const timer = setTimeout(() => { controller.abort(); }, 8_000);
+  if (signal) {
+    signal.addEventListener('abort', () => { controller.abort(); }, { once: true });
   }
 
-  const reader = res.body?.getReader();
-  if (!reader) throw new GeminiApiError('Streaming not supported', 'SCHEMA_INVALID');
+  try {
+    const res = await fetch(API_CONFIG.OPENROUTER.BASE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${trimmed}`,
+        'HTTP-Referer': 'https://vayushield-nine.vercel.app',
+        'X-Title': 'VayuShield',
+      },
+      body: JSON.stringify({
+        model: API_CONFIG.OPENROUTER.MODEL,
+        stream: true,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...messages.map((m) => ({
+            role: m.role,
+            content: sanitizeUserInput(m.content),
+          })),
+        ],
+        temperature: 0.4,
+      }),
+      signal: controller.signal,
+    });
 
-  const decoder = new TextDecoder();
-  let fullAccumulated = '';
-  let buffer = '';
-  let isDone = false;
-
-  while (!isDone) {
-    const result = await reader.read();
-    isDone = result.done;
-    if (!result.value) continue;
-
-    buffer += decoder.decode(result.value, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop() ?? '';
-
-    for (const line of lines) {
-      const text = extractDeltaFromLine(line);
-      if (!text) continue;
-      fullAccumulated += text;
-      onChunk(text);
+    if (!res.ok) {
+      throw new GeminiApiError(`OpenRouter stream failed: HTTP ${res.status}`, 'TIMEOUT');
     }
-  }
 
-  return fullAccumulated;
+    const reader = res.body?.getReader();
+    if (!reader) throw new GeminiApiError('Streaming not supported', 'SCHEMA_INVALID');
+
+    const decoder = new TextDecoder();
+    let fullAccumulated = '';
+    let buffer = '';
+    let isDone = false;
+
+    while (!isDone) {
+      const result = await reader.read();
+      isDone = result.done;
+      if (!result.value) continue;
+
+      buffer += decoder.decode(result.value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() ?? '';
+      fullAccumulated += consumeDeltaLines(lines, onChunk);
+    }
+
+    return fullAccumulated;
+  } finally {
+    clearTimeout(timer);
+  }
 }

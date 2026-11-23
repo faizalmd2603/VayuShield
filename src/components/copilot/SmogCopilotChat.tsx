@@ -59,6 +59,84 @@ const EmptyChatPrompt: React.FC<{
   </div>
 );
 
+const CopilotStreamingBanner: React.FC<{ readonly onStop: () => void }> = ({ onStop }) => (
+  <div className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-[#00FFC2]/10 border border-[#00FFC2]/30 text-[#00FFC2] text-xs font-mono">
+    <div className="flex items-center gap-2">
+      <span className="w-2 h-2 rounded-full bg-[#00FFC2] animate-ping" />
+      <span>Synthesizing live atmospheric telemetry &amp; copilot stream...</span>
+    </div>
+    <button
+      type="button"
+      onClick={onStop}
+      className="text-[11px] font-mono uppercase tracking-wider text-neutral-400 hover:text-white cursor-pointer underline"
+    >
+      Cancel
+    </button>
+  </div>
+);
+
+const CopilotErrorBanner: React.FC<{
+  readonly error: string;
+  readonly lastPrompt?: string;
+  readonly onRetry?: () => void;
+}> = ({ error, lastPrompt, onRetry }) => (
+  <div className="p-3.5 rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/30 text-xs font-mono flex items-center justify-between gap-2">
+    <div className="flex items-center gap-2">
+      <AlertIcon className="w-4 h-4 shrink-0" />
+      <span>{error}</span>
+    </div>
+    {lastPrompt && onRetry && (
+      <button
+        type="button"
+        onClick={onRetry}
+        className="px-3 py-1 rounded-full bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 font-mono text-[10px] uppercase tracking-wider cursor-pointer transition-colors"
+      >
+        Retry
+      </button>
+    )}
+  </div>
+);
+
+const CopilotInputForm: React.FC<{
+  readonly inputVal: string;
+  readonly isStreaming: boolean;
+  readonly onChangeInput: (val: string) => void;
+  readonly onSubmit: (e: React.SyntheticEvent) => void;
+  readonly onStop: () => void;
+}> = ({ inputVal, isStreaming, onChangeInput, onSubmit, onStop }) => (
+  <form
+    onSubmit={onSubmit}
+    className="flex items-center gap-2 pt-3 border-t border-neutral-200 dark:border-neutral-800"
+  >
+    <input
+      type="text"
+      value={inputVal}
+      onChange={(e) => { onChangeInput(e.target.value); }}
+      placeholder="Ask Smog Copilot about routines, CADR, school commutes, RWA protocols..."
+      className="flex-1 px-4 py-3 text-xs sm:text-sm rounded-full border border-neutral-300 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900/60 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-[#00FFC2] cursor-text"
+    />
+    {isStreaming ? (
+      <button
+        type="button"
+        onClick={onStop}
+        className="flex items-center gap-1.5 px-4 py-3 rounded-full bg-rose-500/20 hover:bg-rose-500/30 text-rose-500 dark:text-rose-400 border border-rose-500/30 text-xs font-mono font-bold uppercase tracking-wider cursor-pointer shrink-0 transition-colors"
+        title="Stop response generation"
+      >
+        <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+        <span>Stop</span>
+      </button>
+    ) : (
+      <button
+        type="submit"
+        disabled={!inputVal.trim()}
+        className="px-5 py-3 rounded-full bg-[#00FFC2] hover:bg-[#00e6ae] disabled:opacity-40 text-black font-mono font-bold text-xs uppercase tracking-wider cursor-pointer shrink-0 transition-all shadow-md shadow-[#00FFC2]/20"
+      >
+        Send
+      </button>
+    )}
+  </form>
+);
+
 /**
  * Real-time SSE streaming Smog Copilot with multi-turn context memory in NK Studio aesthetic.
  */
@@ -69,8 +147,16 @@ export const SmogCopilotChat: React.FC<Props> = ({
   selectedModel,
 }) => {
   const [inputVal, setInputVal] = useState('');
-  const { messages, streamingChunk, isStreaming, error, sendMessage, clearChat } =
-    useGeminiChat(apiKey, selectedModel);
+  const {
+    messages,
+    streamingChunk,
+    isStreaming,
+    error,
+    lastPrompt,
+    sendMessage,
+    stopStreaming,
+    clearChat,
+  } = useGeminiChat(apiKey, selectedModel);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -121,31 +207,24 @@ export const SmogCopilotChat: React.FC<Props> = ({
           </div>
         )}
         {error && (
-          <div className="p-3.5 rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/30 text-xs font-mono flex items-center gap-2">
-            <AlertIcon className="w-4 h-4 shrink-0" />
-            <span>{error}</span>
-          </div>
+          <CopilotErrorBanner
+            error={error}
+            lastPrompt={lastPrompt}
+            onRetry={() => { void sendMessage(lastPrompt, telemetry, profile); }}
+          />
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      <form
+      {isStreaming && <CopilotStreamingBanner onStop={stopStreaming} />}
+
+      <CopilotInputForm
+        inputVal={inputVal}
+        isStreaming={isStreaming}
+        onChangeInput={setInputVal}
         onSubmit={(e) => { e.preventDefault(); handleSend(inputVal); }}
-        className="flex items-center gap-2 pt-3 border-t border-neutral-200 dark:border-neutral-800"
-      >
-        <input
-          type="text" value={inputVal} onChange={(e) => { setInputVal(e.target.value); }}
-          placeholder="Ask Smog Copilot about routines, CADR, school commutes, RWA protocols..."
-          disabled={isStreaming}
-          className="flex-1 px-4 py-3 text-xs sm:text-sm rounded-full border border-neutral-300 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900/60 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-[#00FFC2]"
-        />
-        <button
-          type="submit" disabled={isStreaming || !inputVal.trim()}
-          className="px-5 py-3 rounded-full bg-[#00FFC2] hover:bg-[#00e6ae] disabled:opacity-40 text-black font-mono font-bold text-xs uppercase tracking-wider cursor-pointer shrink-0 transition-all shadow-md shadow-[#00FFC2]/20"
-        >
-          {isStreaming ? 'Streaming...' : 'Send'}
-        </button>
-      </form>
+        onStop={stopStreaming}
+      />
     </div>
   );
 };

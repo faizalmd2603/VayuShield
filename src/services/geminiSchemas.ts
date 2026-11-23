@@ -113,17 +113,46 @@ export const VAYUSHIELD_PLAN_RESPONSE_SCHEMA = {
 } as const;
 
 /**
- * Strips markdown code fences and isolates JSON braces.
+ * Strips markdown code fences, removes trailing commas, and isolates JSON braces.
  */
 export function cleanJsonString(raw: string): string {
   const trimmed = raw.trim();
   const withoutFences = trimmed.replace(/^```(?:json)?/i, '').replace(/```$/g, '').trim();
   const firstBrace = withoutFences.indexOf('{');
   const lastBrace = withoutFences.lastIndexOf('}');
-  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-    return withoutFences.slice(firstBrace, lastBrace + 1);
+  const candidate = (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace)
+    ? withoutFences.slice(firstBrace, lastBrace + 1)
+    : withoutFences;
+  return candidate.replace(/,\s*([}\]])/g, '$1');
+}
+
+/**
+ * Attempts parsing with auto-repair of unclosed JSON braces/brackets.
+ */
+export function safeParseJsonPlan(text: string): unknown {
+  const cleaned = cleanJsonString(text);
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    let repaired = cleaned;
+    let braces = 0;
+    let brackets = 0;
+    for (const ch of repaired) {
+      if (ch === '{') braces++;
+      else if (ch === '}') braces = Math.max(0, braces - 1);
+      else if (ch === '[') brackets++;
+      else if (ch === ']') brackets = Math.max(0, brackets - 1);
+    }
+    while (brackets > 0) {
+      repaired += ']';
+      brackets--;
+    }
+    while (braces > 0) {
+      repaired += '}';
+      braces--;
+    }
+    return JSON.parse(repaired);
   }
-  return withoutFences;
 }
 
 function safeString(val: unknown, alt: unknown, fallback: string): string {

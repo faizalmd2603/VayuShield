@@ -4,7 +4,7 @@ import { GeminiApiError } from '../types/errors';
 import type { ChatMessage, GeminiModelName, VayuShieldPlan } from '../types/gemini';
 import type { LifestyleProfile } from '../types/profile';
 import {
-  cleanJsonString,
+  safeParseJsonPlan,
   coerceAndNormalizePlan,
   VAYUSHIELD_PLAN_RESPONSE_SCHEMA,
 } from './geminiSchemas';
@@ -237,10 +237,9 @@ function parseAndValidatePlan(
     throw new GeminiApiError('Gemini returned an empty response', 'SCHEMA_INVALID');
   }
 
-  const cleaned = cleanJsonString(textOutput);
   let parsed: unknown;
   try {
-    parsed = JSON.parse(cleaned);
+    parsed = safeParseJsonPlan(textOutput);
   } catch {
     throw new GeminiApiError(
       'Failed to parse JSON response from Gemini',
@@ -271,60 +270,18 @@ async function callPlanAttempt(
   return data.candidates?.[0]?.content?.parts?.[0]?.text;
 }
 
-async function tryBackupKeyOrOpenRouter(
-  _model: GeminiModelName,
-  payload: Record<string, unknown>,
-  request: PlanGenerationRequest,
-  promptText: string
-): Promise<{ readonly text: string | undefined; readonly modelUsed: string } | null> {
-  // 1. Secondary Alternative: OpenRouter (free tier resilient model)
-  if (request.openRouterApiKey) {
-    try {
-      const openRouterText = await callOpenRouterCompletion({
-        apiKey: request.openRouterApiKey,
-        prompt: promptText,
-        signal: request.signal,
-      });
-      return { text: openRouterText, modelUsed: 'openrouter/free' };
-    } catch {
-      // OpenRouter error, cascade to backup Gemini key
-    }
-  }
-
-  // 2. Safety Fallback: Gemini Backup Key on fast lite model
-  if (request.backupApiKey && request.backupApiKey !== request.apiKey) {
-    try {
-      const text = await callPlanAttempt(
-        API_CONFIG.GEMINI.MODELS.PRIMARY,
-        request.backupApiKey,
-        payload,
-        request.signal
-      );
-      return { text, modelUsed: `${API_CONFIG.GEMINI.MODELS.PRIMARY} (backup-key)` };
-    } catch {
-      // Fallback failed
-    }
-  }
-
-  return null;
-}
-
-/**
- * Executes structured plan generation with multi-key and OpenRouter fallback.
- */
-async function executePlanWithFallback(
+async function attemptPlanWithValidation(
   model: GeminiModelName,
+  key: string,
   payload: Record<string, unknown>,
-  request: PlanGenerationRequest,
-  promptText: string
-): Promise<{ readonly text: string | undefined; readonly modelUsed: string }> {
+  locationName: string,
+  signal?: AbortSignal
+): Promise<VayuShieldPlan | null> {
   try {
-    const text = await callPlanAttempt(model, request.apiKey, payload, request.signal);
-    return { text, modelUsed: model };
-  } catch (err: unknown) {
-    const fallback = await tryBackupKeyOrOpenRouter(model, payload, request, promptText);
-    if (fallback) return fallback;
-    throw err;
+    const text = await callPlanAttempt(model, key, payload, signal);
+    return parseAndValidatePlan(text, locationName, model);
+  } catch {
+    return null;
   }
 }
 
@@ -353,8 +310,59 @@ export async function generateVayuShieldPlan(
     },
   };
 
-  const outcome = await executePlanWithFallback(model, payload, request, promptText);
-  return parseAndValidatePlan(outcome.text, telemetry.location.name, outcome.modelUsed);
+  // 1. Try requested model on primary key
+  const plan1 = await attemptPlanWithValidation(
+    model,
+    request.apiKey,
+    payload,
+    telemetry.location.name,
+    request.signal
+  );
+  if (plan1) return plan1;
+
+  // 2. Cascade to fast reliable model (gemini-3.5-flash-lite) if different
+  if (model !== API_CONFIG.GEMINI.MODELS.PRIMARY) {
+    const plan2 = await attemptPlanWithValidation(
+      API_CONFIG.GEMINI.MODELS.PRIMARY,
+      request.apiKey,
+      payload,
+      telemetry.location.name,
+      request.signal
+    );
+    if (plan2) return plan2;
+  }
+
+  // 3. Fallback: OpenRouter resilient completion
+  if (request.openRouterApiKey) {
+    try {
+      const openRouterText = await callOpenRouterCompletion({
+        apiKey: request.openRouterApiKey,
+        prompt: promptText,
+        signal: request.signal,
+      });
+      return parseAndValidatePlan(openRouterText, telemetry.location.name, 'openrouter/free');
+    } catch {
+      // OpenRouter error, cascade to backup key
+    }
+  }
+
+  // 4. Safety Fallback: Gemini Backup Key on fast lite model
+  if (request.backupApiKey && request.backupApiKey !== request.apiKey) {
+    const backupPlan = await attemptPlanWithValidation(
+      API_CONFIG.GEMINI.MODELS.PRIMARY,
+      request.backupApiKey,
+      payload,
+      telemetry.location.name,
+      request.signal
+    );
+    if (backupPlan) return backupPlan;
+  }
+
+  throw new GeminiApiError(
+    'Gemini API is temporarily experiencing high demand. Please try again shortly.',
+    'TIMEOUT',
+    true
+  );
 }
 
 interface SsePayload {
@@ -391,49 +399,75 @@ function extractSseText(line: string): string | null {
   }
 }
 
+async function tryFetchStream(
+  model: GeminiModelName,
+  apiKey: string,
+  body: string,
+  signal?: AbortSignal
+): Promise<Response | null> {
+  const url = `${API_CONFIG.GEMINI.BASE_URL}/${model}:streamGenerateContent?alt=sse`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => { controller.abort(); }, 5_000);
+
+  if (signal) {
+    signal.addEventListener('abort', () => { controller.abort(); }, { once: true });
+  }
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+      body,
+      signal: controller.signal,
+    });
+    if (res.ok) return res;
+    return null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function obtainStreamResponse(
-  url: string,
   body: string,
   systemContext: string,
   request: ChatStreamRequest
 ): Promise<Response | string> {
-  try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': request.apiKey },
-      body,
-      signal: request.signal,
-    });
-    if (res.ok) return res;
-    throw handleGeminiErrorStatus(res.status);
-  } catch (err: unknown) {
-    if (request.openRouterApiKey) {
-      try {
-        return await streamOpenRouterChat({
-          apiKey: request.openRouterApiKey,
-          systemPrompt: systemContext,
-          messages: request.messages,
-          onChunk: request.onChunk,
-          signal: request.signal,
-        });
-      } catch {
-        // OpenRouter failed or 402, cascade to backup Gemini key
-      }
-    }
+  const initial = request.model ?? API_CONFIG.GEMINI.MODELS.PRIMARY;
+  const modelsToTry: readonly GeminiModelName[] = [
+    initial,
+    API_CONFIG.GEMINI.MODELS.PRIMARY,
+    API_CONFIG.GEMINI.MODELS.DEEP,
+  ].filter((m, i, arr) => arr.indexOf(m) === i);
 
-    if (request.backupApiKey && request.backupApiKey !== request.apiKey) {
-      const fallbackUrl = `${API_CONFIG.GEMINI.BASE_URL}/${API_CONFIG.GEMINI.MODELS.PRIMARY}:streamGenerateContent?alt=sse`;
-      const backupRes = await fetch(fallbackUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': request.backupApiKey },
-        body,
+  for (const model of modelsToTry) {
+    const res = await tryFetchStream(model, request.apiKey, body, request.signal);
+    if (res) return res;
+  }
+
+  if (request.backupApiKey && request.backupApiKey !== request.apiKey) {
+    for (const model of [API_CONFIG.GEMINI.MODELS.PRIMARY, API_CONFIG.GEMINI.MODELS.DEEP]) {
+      const res = await tryFetchStream(model, request.backupApiKey, body, request.signal);
+      if (res) return res;
+    }
+  }
+
+  if (request.openRouterApiKey) {
+    try {
+      return await streamOpenRouterChat({
+        apiKey: request.openRouterApiKey,
+        systemPrompt: systemContext,
+        messages: request.messages,
+        onChunk: request.onChunk,
         signal: request.signal,
       });
-      if (backupRes.ok) return backupRes;
+    } catch {
+      // OpenRouter fallback
     }
-
-    throw err;
   }
+
+  throw new GeminiApiError('Streaming response timed out. Please retry.', 'TIMEOUT', true);
 }
 
 async function consumeSseStream(
@@ -477,10 +511,8 @@ export async function streamGeminiChat(request: ChatStreamRequest): Promise<stri
     telemetry,
     profile,
     onChunk,
-    model = API_CONFIG.GEMINI.MODELS.PRIMARY,
   } = request;
 
-  const url = `${API_CONFIG.GEMINI.BASE_URL}/${model}:streamGenerateContent?alt=sse`;
   const systemContext = `You are VayuShield Smog Copilot. Live context: ${telemetry.location.name}, CPCB AQI: ${telemetry.cpcbAqi.aqi} (${telemetry.cpcbAqi.category}), Dominant: ${telemetry.cpcbAqi.dominantPollutant}, GRAP: ${telemetry.grapStage}, User Housing: ${profile.housingType}, Commute: ${profile.commuteMode}. Provide actionable, science-grounded answers. In every answer with action suggestions, include a concise Direct Choice Impact section.`;
 
   const contents = [
@@ -492,7 +524,6 @@ export async function streamGeminiChat(request: ChatStreamRequest): Promise<stri
   ];
 
   const streamOutcome = await obtainStreamResponse(
-    url,
     JSON.stringify({ contents, generationConfig: { temperature: 0.4 } }),
     systemContext,
     request

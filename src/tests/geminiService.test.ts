@@ -4,6 +4,7 @@ import {
   streamGeminiChat,
   verifyGeminiApiKey,
 } from '../services/geminiService';
+import { safeParseJsonPlan } from '../services/geminiSchemas';
 import type { CombinedAirTelemetry } from '../types/airQuality';
 import { GeminiApiError } from '../types/errors';
 import type { LifestyleProfile } from '../types/profile';
@@ -291,5 +292,61 @@ describe('Google Gemini Integration Engine', () => {
 
     expect(receivedChunks).toHaveLength(2);
     expect(fullText).toContain('Hello! Based on current CPCB AQI of 345');
+  });
+
+  it('safely auto-repairs unclosed JSON and strips trailing commas', () => {
+    const brokenJson = '{"summaryAdvisory": "Keep indoors", "routines": [{"id": "r1",}],';
+    const parsed = safeParseJsonPlan(brokenJson) as { summaryAdvisory?: string; routines?: unknown[] };
+    expect(parsed.summaryAdvisory).toBe('Keep indoors');
+    expect(Array.isArray(parsed.routines)).toBe(true);
+  });
+
+  it('cascades stream to gemini-3.5-flash-lite when balanced model returns 503', async () => {
+    const sseStreamChunks = [
+      'data: {"candidates":[{"content":{"parts":[{"text":"Streamed via fallback lite model."}]}}]}\n\n',
+      'data: [DONE]\n\n',
+    ];
+
+    let chunkIndex = 0;
+    const mockReader = {
+      read: vi.fn().mockImplementation(() => {
+        if (chunkIndex < sseStreamChunks.length) {
+          const chunkStr = sseStreamChunks[chunkIndex++];
+          return Promise.resolve({
+            done: false,
+            value: new TextEncoder().encode(chunkStr),
+          });
+        }
+        return Promise.resolve({ done: true, value: undefined });
+      }),
+    };
+
+    // First call (gemini-3.5-flash) returns 503
+    // Second call (gemini-3.5-flash-lite) returns 200
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 503,
+      } as unknown as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        body: { getReader: () => mockReader },
+      } as unknown as Response);
+
+    const receivedChunks: string[] = [];
+    const fullText = await streamGeminiChat({
+      apiKey: dummyApiKey,
+      model: 'gemini-3.5-flash',
+      messages: [{ id: '1', role: 'user', content: 'Help!', timestamp: '12:00' }],
+      telemetry: sampleTelemetry,
+      profile: sampleProfile,
+      onChunk: (chunk) => {
+        receivedChunks.push(chunk);
+      },
+    });
+
+    expect(receivedChunks).toHaveLength(1);
+    expect(fullText).toContain('Streamed via fallback lite model.');
   });
 });
