@@ -180,38 +180,31 @@ function coerceRoutineStep(r: Record<string, unknown>, i: number): RoutineStep {
   };
 }
 
-function coerceIndoorHack(h: Record<string, unknown>, i: number): IndoorHack {
+function coerceIndoorHack(h: unknown, i: number): IndoorHack {
+  if (typeof h === 'string') {
+    return {
+      id: `hack-${i + 1}`,
+      category: 'Zero-Cost',
+      title: h.length > 35 ? `${h.slice(0, 35)}...` : h,
+      description: h,
+      directHealthImpact: 'Reduces particulate inhalation and household aerosol exposure',
+      directEmissionImpact: 'Zero energy draw',
+      estimatedCost: '₹0 / Free',
+      effortLevel: 'Low',
+      achCadrImprovement: '+1.2 ACH Infiltration Barrier',
+    };
+  }
+  const obj = typeof h === 'object' && h !== null ? (h as Record<string, unknown>) : {};
   return {
-    id: safeString(h.id, undefined, `hack-${i + 1}`),
-    category: coerceCategory(h.category),
-    title: safeString(h.title, undefined, 'Door Draught Seal'),
-    description: safeString(h.description, h.action, 'Install silicone seals on entrance frames to curb ingress'),
-    directHealthImpact: safeString(h.directHealthImpact, h.healthImpact, 'Reduces indoor PM2.5 infiltration by 35%'),
-    directEmissionImpact: safeString(h.directEmissionImpact, h.emissionImpact, 'Zero added energy draw'),
-    estimatedCost: safeString(h.estimatedCost, h.cost, '₹0 / Free'),
-    effortLevel: coerceEffort(h.effortLevel),
-    achCadrImprovement: safeString(h.achCadrImprovement, h.achImprovement, '+1.2 ACH Infiltration Barrier'),
-  };
-}
-
-function coerceCommunityPlaybook(target: Record<string, unknown>): CommunityPlaybook {
-  const list = Array.isArray(target.actionChecklist) ? target.actionChecklist : [];
-  const checklist = list.length > 0
-    ? list.filter((item): item is string => typeof item === 'string')
-    : [
-        'Halt diesel generators for non-essential common areas',
-        'Implement mechanized wet-mop sweeping on society roads',
-        'Establish clean air respite rooms in common areas',
-      ];
-
-  return {
-    id: safeString(target.id, undefined, 'playbook-rwa'),
-    title: safeString(target.title, undefined, 'Community & RWA Anti-Smog Directive'),
-    targetAudience: safeString(target.targetAudience, target.audience, 'Apartment residents, RWAs, schools'),
-    currentGrapContext: safeString(target.currentGrapContext, target.grapStage, 'GRAP Mitigation Protocols Active'),
-    actionChecklist: checklist,
-    directCommunityImpact: safeString(target.directCommunityImpact, target.communityImpact, 'Prevents 4+ kg particulate emissions across 500+ residents'),
-    advisoryNoticeText: safeString(target.advisoryNoticeText, target.notice, 'Official Winter Smog Advisory: Inversion conditions active. Please halt non-essential combustion and carpool.'),
+    id: safeString(obj.id, undefined, `hack-${i + 1}`),
+    category: coerceCategory(obj.category),
+    title: safeString(obj.title, undefined, 'Door Draught Seal'),
+    description: safeString(obj.description, obj.action, 'Install silicone seals on entrance frames to curb ingress'),
+    directHealthImpact: safeString(obj.directHealthImpact, obj.healthImpact, 'Reduces indoor PM2.5 infiltration by 35%'),
+    directEmissionImpact: safeString(obj.directEmissionImpact, obj.emissionImpact, 'Zero added energy draw'),
+    estimatedCost: safeString(obj.estimatedCost, obj.cost, '₹0 / Free'),
+    effortLevel: coerceEffort(obj.effortLevel),
+    achCadrImprovement: safeString(obj.achCadrImprovement, obj.achImprovement, '+1.2 ACH Infiltration Barrier'),
   };
 }
 
@@ -221,6 +214,66 @@ function resolvePlaybookTarget(target: unknown): Record<string, unknown> {
     return typeof first === 'object' && first !== null ? (first as Record<string, unknown>) : {};
   }
   return typeof target === 'object' && target !== null ? (target as Record<string, unknown>) : {};
+}
+
+function coerceCommunityPlaybook(target: unknown): CommunityPlaybook {
+  if (Array.isArray(target) && target.length > 0) {
+    const stringItems = target.filter((item): item is string => typeof item === 'string');
+    if (stringItems.length > 0) {
+      return {
+        id: 'playbook-rwa',
+        title: 'Community & RWA Anti-Smog Directive',
+        targetAudience: 'Apartment residents, RWAs, schools',
+        currentGrapContext: 'GRAP Mitigation Protocols Active',
+        actionChecklist: stringItems,
+        directCommunityImpact: 'Prevents 4+ kg particulate emissions across 500+ residents',
+        advisoryNoticeText: 'Official Winter Smog Advisory: Inversion conditions active. Please halt non-essential combustion and carpool.',
+      };
+    }
+  }
+
+  const obj = resolvePlaybookTarget(target);
+  const list = Array.isArray(obj.actionChecklist) ? obj.actionChecklist : [];
+  const checklist = list.length > 0
+    ? list.filter((item): item is string => typeof item === 'string')
+    : [
+        'Halt diesel generators for non-essential common areas',
+        'Implement mechanized wet-mop sweeping on society roads',
+        'Establish clean air respite rooms in common areas',
+      ];
+
+  return {
+    id: safeString(obj.id, undefined, 'playbook-rwa'),
+    title: safeString(obj.title, undefined, 'Community & RWA Anti-Smog Directive'),
+    targetAudience: safeString(obj.targetAudience, obj.audience, 'Apartment residents, RWAs, schools'),
+    currentGrapContext: safeString(obj.currentGrapContext, obj.grapStage, 'GRAP Mitigation Protocols Active'),
+    actionChecklist: checklist,
+    directCommunityImpact: safeString(obj.directCommunityImpact, obj.communityImpact, 'Prevents 4+ kg particulate emissions across 500+ residents'),
+    advisoryNoticeText: safeString(obj.advisoryNoticeText, obj.notice, 'Official Winter Smog Advisory: Inversion conditions active. Please halt non-essential combustion and carpool.'),
+  };
+}
+
+function appendTimelineSteps(timeline: unknown[], list: Record<string, unknown>[]): void {
+  for (const sub of timeline) {
+    if (typeof sub === 'object' && sub !== null) {
+      list.push(sub as Record<string, unknown>);
+    }
+  }
+}
+
+function extractRawRoutines(raw: unknown): Record<string, unknown>[] {
+  if (!Array.isArray(raw)) return [];
+  const list: Record<string, unknown>[] = [];
+  for (const item of raw) {
+    if (typeof item !== 'object' || item === null) continue;
+    const o = item as Record<string, unknown>;
+    if (Array.isArray(o.timeline) && o.timeline.length > 0) {
+      appendTimelineSteps(o.timeline, list);
+    } else {
+      list.push(o);
+    }
+  }
+  return list;
 }
 
 /**
@@ -237,17 +290,17 @@ export function coerceAndNormalizePlan(
   const o = raw as Record<string, unknown>;
   const summary = safeString(o.summaryAdvisory, o.summary, 'Action plan synchronized with live air quality telemetry.');
 
-  const rawRoutines = Array.isArray(o.routines) ? (o.routines as Record<string, unknown>[]) : [];
+  const rawRoutines = extractRawRoutines(o.routines);
   const routines = rawRoutines.length > 0
     ? rawRoutines.map(coerceRoutineStep)
     : [coerceRoutineStep({}, 0)];
 
-  const rawHacks = Array.isArray(o.indoorHacks) ? (o.indoorHacks as Record<string, unknown>[]) : [];
+  const rawHacks = Array.isArray(o.indoorHacks) ? (o.indoorHacks as unknown[]) : [];
   const indoorHacks = rawHacks.length > 0
     ? rawHacks.map(coerceIndoorHack)
     : [coerceIndoorHack({}, 0)];
 
-  const communityPlaybook = coerceCommunityPlaybook(resolvePlaybookTarget(o.communityPlaybook));
+  const communityPlaybook = coerceCommunityPlaybook(o.communityPlaybook);
 
   return {
     generatedAt: new Date().toISOString(),
