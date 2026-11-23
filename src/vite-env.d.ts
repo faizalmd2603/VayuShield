@@ -6,6 +6,7 @@ declare global {
     readonly VITE_GEMINI_API_KEY?: string;
     readonly VITE_GEMINI_BACKUP_KEY?: string;
     readonly VITE_OPENROUTER_API_KEY?: string;
+    readonly VITE_SERPAPI_KEY?: string;
   }
 
   interface ImportMeta {

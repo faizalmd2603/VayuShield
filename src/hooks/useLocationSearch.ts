@@ -15,6 +15,18 @@ export interface UseLocationSearchResult {
   readonly clearSearch: () => void;
 }
 
+async function resolveTypedCity(query: string): Promise<GeoLocation | null> {
+  const trimmed = query.trim();
+  if (trimmed.length < 2) return null;
+  try {
+    const results = await searchLocations(trimmed);
+    const first = results[0];
+    return first ?? null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Hook providing debounced geocoding search and browser GPS positioning.
  */
@@ -65,6 +77,16 @@ export function useLocationSearch(
   const fetchGpsLocation = useCallback(async (): Promise<GeoLocation | null> => {
     setIsGpsLocating(true);
     setError(null);
+
+    const typedLoc = await resolveTypedCity(query);
+    if (typedLoc) {
+      setCandidates([]);
+      setQuery(typedLoc.name);
+      onSelectLocation?.(typedLoc);
+      setIsGpsLocating(false);
+      return typedLoc;
+    }
+
     try {
       const loc = await getCurrentGpsPosition();
       setCandidates([]);
@@ -72,16 +94,13 @@ export function useLocationSearch(
       onSelectLocation?.(loc);
       return loc;
     } catch (err: unknown) {
-      const msg =
-        err instanceof LocationError
-          ? err.message
-          : 'Unable to access your current GPS location';
+      const msg = err instanceof LocationError ? err.message : 'Unable to access your current GPS location';
       setError(msg);
       return null;
     } finally {
       setIsGpsLocating(false);
     }
-  }, [onSelectLocation]);
+  }, [query, onSelectLocation]);
 
   const clearSearch = useCallback(() => {
     setQuery('');

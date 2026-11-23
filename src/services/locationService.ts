@@ -109,9 +109,14 @@ export function getCurrentGpsPosition(): Promise<GeoLocation> {
         if (err.code === 1) code = 'PERMISSION_DENIED';
         if (err.code === 3) code = 'TIMEOUT';
 
-        reject(new LocationError(err.message, code));
+        const message =
+          err.code === 3
+            ? 'GPS request timed out. Please select your city from the search bar above or check browser location permissions.'
+            : err.message;
+
+        reject(new LocationError(message, code));
       },
-      { enableHighAccuracy: true, timeout: 10_000, maximumAge: 60_000 }
+      { enableHighAccuracy: false, timeout: 15_000, maximumAge: 300_000 }
     );
   });
 }

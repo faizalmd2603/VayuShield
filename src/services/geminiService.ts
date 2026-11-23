@@ -173,6 +173,24 @@ async function executeRetryAttempt(
   return res;
 }
 
+function getNextFallbackModel(current: GeminiModelName): GeminiModelName {
+  return current === 'gemini-4-hydrogen'
+    ? API_CONFIG.GEMINI.MODELS.PRIMARY
+    : API_CONFIG.GEMINI.MODELS.DEEP;
+}
+
+function checkRetryError(err: unknown, attempt: number, signal?: AbortSignal): void {
+  if (err instanceof GeminiApiError && !err.recoverable) throw err;
+  if (signal?.aborted) {
+    throw new GeminiApiError('Request was aborted', 'ABORTED', true);
+  }
+  if (attempt >= API_CONFIG.GEMINI.MAX_RETRIES) {
+    throw err instanceof GeminiApiError
+      ? err
+      : new GeminiApiError('Network connection failed', 'NETWORK_OFFLINE');
+  }
+}
+
 /**
  * Calls Gemini with automatic retry and model fallback.
  */
@@ -188,18 +206,10 @@ async function callWithRetryAndFallback(
     try {
       const res = await executeRetryAttempt(model, apiKey, payload, attempt, signal);
       if (res.ok) return res;
-      model = API_CONFIG.GEMINI.MODELS.DEEP;
+      model = getNextFallbackModel(model);
     } catch (err: unknown) {
-      if (err instanceof GeminiApiError && !err.recoverable) throw err;
-      if (signal?.aborted) {
-        throw new GeminiApiError('Request was aborted', 'ABORTED', true);
-      }
-      if (attempt >= API_CONFIG.GEMINI.MAX_RETRIES) {
-        throw err instanceof GeminiApiError
-          ? err
-          : new GeminiApiError('Network connection failed', 'NETWORK_OFFLINE');
-      }
-      model = API_CONFIG.GEMINI.MODELS.DEEP;
+      checkRetryError(err, attempt, signal);
+      model = getNextFallbackModel(model);
     }
   }
 
@@ -262,22 +272,30 @@ async function tryBackupKeyOrOpenRouter(
   request: PlanGenerationRequest,
   promptText: string
 ): Promise<{ readonly text: string | undefined; readonly modelUsed: string } | null> {
+  // 1. Secondary Alternative: OpenRouter
+  if (request.openRouterApiKey) {
+    try {
+      const openRouterText = await callOpenRouterCompletion({
+        apiKey: request.openRouterApiKey,
+        prompt: promptText,
+        signal: request.signal,
+      });
+      return { text: openRouterText, modelUsed: 'openrouter/google/gemini-2.5-flash' };
+    } catch {
+      // OpenRouter error or 402 credit limit, cascade to backup Gemini key
+    }
+  }
+
+  // 2. Safety Fallback: Gemini Backup Key
   if (request.backupApiKey && request.backupApiKey !== request.apiKey) {
     try {
       const text = await callPlanAttempt(model, request.backupApiKey, payload, request.signal);
       return { text, modelUsed: `${model} (backup-key)` };
     } catch {
-      // Continue to OpenRouter
+      // Fallback failed
     }
   }
-  if (request.openRouterApiKey) {
-    const openRouterText = await callOpenRouterCompletion({
-      apiKey: request.openRouterApiKey,
-      prompt: promptText,
-      signal: request.signal,
-    });
-    return { text: openRouterText, modelUsed: 'openrouter/google/gemini-2.5-flash' };
-  }
+
   return null;
 }
 
@@ -363,14 +381,12 @@ function extractSseText(line: string): string | null {
   }
 }
 
-/**
- * Initiates streaming connection with primary and backup key fallback.
- */
-async function fetchGeminiStream(
+async function obtainStreamResponse(
   url: string,
   body: string,
+  systemContext: string,
   request: ChatStreamRequest
-): Promise<Response> {
+): Promise<Response | string> {
   try {
     const res = await fetch(url, {
       method: 'POST',
@@ -379,17 +395,22 @@ async function fetchGeminiStream(
       signal: request.signal,
     });
     if (res.ok) return res;
-    if (request.backupApiKey && request.backupApiKey !== request.apiKey) {
-      const backupRes = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': request.backupApiKey },
-        body,
-        signal: request.signal,
-      });
-      if (backupRes.ok) return backupRes;
-    }
     throw handleGeminiErrorStatus(res.status);
   } catch (err: unknown) {
+    if (request.openRouterApiKey) {
+      try {
+        return await streamOpenRouterChat({
+          apiKey: request.openRouterApiKey,
+          systemPrompt: systemContext,
+          messages: request.messages,
+          onChunk: request.onChunk,
+          signal: request.signal,
+        });
+      } catch {
+        // OpenRouter failed or 402, cascade to backup Gemini key
+      }
+    }
+
     if (request.backupApiKey && request.backupApiKey !== request.apiKey) {
       const backupRes = await fetch(url, {
         method: 'POST',
@@ -399,6 +420,7 @@ async function fetchGeminiStream(
       });
       if (backupRes.ok) return backupRes;
     }
+
     throw err;
   }
 }
@@ -430,28 +452,6 @@ async function consumeSseStream(
   }
 
   return fullAccumulated;
-}
-
-async function obtainStreamResponse(
-  url: string,
-  body: string,
-  systemContext: string,
-  request: ChatStreamRequest
-): Promise<Response | string> {
-  try {
-    return await fetchGeminiStream(url, body, request);
-  } catch (err: unknown) {
-    if (request.openRouterApiKey) {
-      return streamOpenRouterChat({
-        apiKey: request.openRouterApiKey,
-        systemPrompt: systemContext,
-        messages: request.messages,
-        onChunk: request.onChunk,
-        signal: request.signal,
-      });
-    }
-    throw err;
-  }
 }
 
 /**

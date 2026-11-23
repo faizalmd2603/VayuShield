@@ -9,6 +9,7 @@ import { WelcomeHero } from './components/common/WelcomeHero';
 import { HourlyForecastChart } from './components/location/HourlyForecastChart';
 import { LiveTelemetryGrid } from './components/location/LiveTelemetryGrid';
 import { LocationSearchBar } from './components/location/LocationSearchBar';
+import { LocationMapCard } from './components/location/LocationMapCard';
 import { PlannerWorkspace } from './components/planner/PlannerWorkspace';
 import type { AggregateImpactResult } from './domain/impactCalculator';
 import { useGeminiPlanner } from './hooks/useGeminiPlanner';
@@ -90,6 +91,7 @@ export const App: React.FC = () => {
 
           {telemetry && (
             <>
+              <LocationMapCard location={telemetry.location} />
               <StatusBanner telemetry={telemetry} />
               <LiveTelemetryGrid telemetry={telemetry} />
               <HourlyForecastChart hourly={telemetry.hourlyForecast} />

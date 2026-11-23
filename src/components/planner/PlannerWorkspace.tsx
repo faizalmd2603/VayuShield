@@ -91,7 +91,9 @@ const PlannerHeaderControls: React.FC<HeaderControlProps> = ({
         aria-label="Select Google Gemini Model"
       >
         <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Fast)</option>
+        <option value="gemini-3.5-flash">gemini-3.5-flash (Balanced)</option>
         <option value="gemini-3.8-flash">gemini-3.8-flash (Deep)</option>
+        <option value="gemini-4-hydrogen">gemini-4-hydrogen (Preview)</option>
       </select>
 
       <button

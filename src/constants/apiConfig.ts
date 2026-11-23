@@ -7,7 +7,9 @@ export const API_CONFIG = {
     BASE_URL: 'https://generativelanguage.googleapis.com/v1beta/models',
     MODELS: {
       PRIMARY: 'gemini-3.5-flash-lite',
+      BALANCED: 'gemini-3.5-flash',
       DEEP: 'gemini-3.8-flash',
+      HYDROGEN: 'gemini-4-hydrogen',
     } as const,
     TIMEOUT_MS: 25_000,
     STREAM_TIMEOUT_MS: 30_000,
@@ -19,6 +21,10 @@ export const API_CONFIG = {
     BASE_URL: 'https://openrouter.ai/api/v1/chat/completions',
     MODEL: 'google/gemini-2.5-flash',
     TIMEOUT_MS: 30_000,
+  },
+  SERPAPI: {
+    BASE_URL: 'https://serpapi.com/search.json',
+    CACHE_TTL_MS: 30 * 60 * 1000,
   },
   OPEN_METEO: {
     GEOCODING_URL: 'https://geocoding-api.open-meteo.com/v1/search',

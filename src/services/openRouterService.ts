@@ -53,6 +53,13 @@ export async function callOpenRouterCompletion(
   });
 
   if (!res.ok) {
+    if (res.status === 402) {
+      throw new GeminiApiError(
+        'OpenRouter free-tier credit exhausted (HTTP 402 Payment Required)',
+        'RATE_LIMITED',
+        true
+      );
+    }
     throw new GeminiApiError(
       `OpenRouter API returned HTTP ${res.status}`,
       'RATE_LIMITED',

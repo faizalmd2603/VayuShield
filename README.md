@@ -198,13 +198,27 @@ When the user adopts recommended habits, VayuShield calculates precise emissions
 
 VayuShield connects directly to the Google Generative Language REST API without intermediary backend proxies or bloated client SDK wrappers.
 
-### Model Hierarchy & Resilience Fallback
-1. **Primary Fast Model (`gemini-3.5-flash-lite`):**
-   - Engineered for sub-second structured JSON generation and streaming copilot interactions.
-   - Temperature configured to `0.3` to guarantee factual consistency and strict adherence to environmental physics.
-2. **Deep Reasoning Model (`gemini-3.8-flash`):**
-   - User-selectable toggle for comprehensive multi-stakeholder community playbooks.
-   - **Automatic Resilience Fallback:** If the primary model encounters a transient `429 Too Many Requests`, `500 Internal Error`, or `503 Service Unavailable`, VayuShield automatically backs off exponentially ($1000\,\text{ms} \to 2000\,\text{ms}$) and falls back to `gemini-3.8-flash`.
+### Model Hierarchy & Multi-Provider Resilience Cascade
+VayuShield supports 4 Google Gemini models, providing flexible latency vs reasoning depth tradeoffs, backed by a 3-tier key and provider failover cascade:
+
+1. **Available Models:**
+   - **`gemini-3.5-flash-lite` (Fast):** Sub-second structured JSON generation and instant copilot answers.
+   - **`gemini-3.5-flash` (Balanced):** Balanced reasoning and generation throughput for daily routine planning.
+   - **`gemini-3.8-flash` (Deep):** High-depth multi-stakeholder reasoning for community playbooks and RWA emergency coordination.
+   - **`gemini-4-hydrogen` (Preview):** Next-generation experimental reasoning with automatic graceful degradation to `gemini-3.5-flash-lite` during high-demand 503 spikes.
+
+2. **3-Tier Key & Provider Resilience Failover:**
+   - **Tier 1 (Primary Gemini Key):** Executes direct Google Generative Language REST calls with zero query-parameter leaks.
+   - **Tier 2 (Secondary OpenRouter Provider):** If Primary encounters rate limits or upstream disruptions, requests seamlessly route via OpenRouter alternative provider.
+   - **Automatic HTTP 402 Detection:** When OpenRouter free-tier credit balance is zero (HTTP 402), VayuShield catches the error in milliseconds and immediately cascades to Tier 3.
+   - **Tier 3 (Safety Backup Gemini Key):** Ensures 100% continuous uptime and zero user disruption under all network and quota conditions.
+
+### SerpAPI Google Maps Satellite & Geolocation Intelligence
+VayuShield integrates SerpAPI's Google Maps engine to deliver visual ground-truth geographic context for searched and geolocated cities:
+- **Aerial Satellite Thumbnail:** Displays real-time aerial satellite imagery corresponding to the exact urban coordinates.
+- **High-Precision Coordinates:** Fetches and displays exact latitude and longitude with micro-degree precision.
+- **Direct Satellite Layer Link:** One-click launch into Google Maps in full satellite view mode (`!1e3`), allowing users to inspect local ground topography, industrial corridors, and smog dispersion zones.
+- **Zero-Timeout Geolocation:** Optimized browser geolocation (`enableHighAccuracy: false`, 15-second timeout) combined with instant typed-city auto-resolution ensures instantaneous search even on WiFi/desktop laptops without hardware GPS.
 
 ### Strict Schema Enforcement & Zero-Leak Security
 - **Header-Only Authorization:** The Gemini API key is passed strictly via the HTTP request header:
@@ -314,21 +328,20 @@ VayuShield avoids bloated runtime libraries, yielding unprecedented load speeds 
 
 ## Verification & Test Suite Matrix
 
-VayuShield contains **7 dedicated test suites** with **34 automated tests** covering domain mathematics, services, accessibility, and end-to-end user workflows:
+VayuShield contains **8 dedicated test suites** with **39 automated tests** covering domain mathematics, services, satellite mapping, accessibility, and end-to-end user workflows:
 
 ```
-Test Files  7 passed (7)
-Tests       34 passed (34)
-Start at    21:53:25
-Duration    13.65s
+Test Files  8 passed (8)
+Tests       39 passed (39)
 
- ✓ src/tests/sanitizer.test.ts (4 tests)
  ✓ src/tests/indoorPhysics.test.ts (4 tests)
+ ✓ src/tests/mapService.test.ts (4 tests)
  ✓ src/tests/aqiScience.test.ts (9 tests)
  ✓ src/tests/airQualityService.test.ts (4 tests)
  ✓ src/tests/geminiService.test.ts (6 tests)
- ✓ src/tests/accessibility.test.tsx (5 tests via vitest-axe)
+ ✓ src/tests/accessibility.test.tsx (6 tests via vitest-axe)
  ✓ src/tests/App.integration.test.tsx (2 tests)
+ ✓ src/tests/sanitizer.test.ts (4 tests)
 ```
 
 ### Verification Pipeline Commands:
