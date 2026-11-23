@@ -9,7 +9,9 @@
 [![Open-Meteo](https://img.shields.io/badge/Telemetry-Open--Meteo_Keyless_CORS-orange.svg)]()
 [![WCAG 2.1 AA](https://img.shields.io/badge/Accessibility-WCAG_2.1_AA_Compliant-success.svg)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)]()
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel_Production-000000.svg?logo=vercel)](https://vayushield-nine.vercel.app)
 
+> 🌐 **Live Web Application:** [https://vayushield-nine.vercel.app](https://vayushield-nine.vercel.app)  
 > **Mission Alignment:** VayuShield is a zero-mock, production-grade GenAI application architected to help **families** and **urban communities** (apartments, resident welfare associations [RWAs], schools, and commuter clusters) survive and mitigate severe winter smog and urban air pollution. Every AI recommendation provides **quantified personal and collective impact metrics** grounded in live atmospheric physics and real-time public environmental telemetry.
 
 ---
