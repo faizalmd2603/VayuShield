@@ -32,7 +32,7 @@ export interface IndoorPollutionEstimate {
 export function calculateRoomMetrics(
   areaSqM: number,
   heightM = 2.8,
-  targetAch = HUMAN_PHYSIOLOGY.DEFAULT_TARGET_ACH
+  targetAch: number = HUMAN_PHYSIOLOGY.DEFAULT_TARGET_ACH
 ): RoomAeroMetrics {
   const safeArea = Math.max(5, Math.min(500, areaSqM));
   const safeHeight = Math.max(2.0, Math.min(6.0, heightM));
