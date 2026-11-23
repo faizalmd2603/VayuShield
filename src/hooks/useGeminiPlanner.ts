@@ -135,6 +135,8 @@ export function useGeminiPlanner(): UseGeminiPlannerResult {
       try {
         const result = await generateVayuShieldPlan({
           apiKey,
+          backupApiKey: import.meta.env.VITE_GEMINI_BACKUP_KEY,
+          openRouterApiKey: import.meta.env.VITE_OPENROUTER_API_KEY,
           telemetry,
           profile,
           model: selectedModel,

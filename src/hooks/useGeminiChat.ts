@@ -61,6 +61,8 @@ export function useGeminiChat(
       try {
         const fullResponse = await streamGeminiChat({
           apiKey,
+          backupApiKey: import.meta.env.VITE_GEMINI_BACKUP_KEY,
+          openRouterApiKey: import.meta.env.VITE_OPENROUTER_API_KEY,
           messages: nextMessages,
           telemetry,
           profile,

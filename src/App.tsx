@@ -48,7 +48,7 @@ export const App: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors font-sans antialiased">
+      <div className="min-h-screen bg-neutral-50 text-neutral-950 dark:bg-[#070708] dark:text-neutral-100 transition-colors font-sans antialiased">
         <SkipLink />
         <Header
           locationName={telemetry?.location.name}

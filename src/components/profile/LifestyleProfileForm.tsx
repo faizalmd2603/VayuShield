@@ -20,9 +20,9 @@ const SensitivityChips: React.FC<{
   readonly activeList: readonly HealthSensitivity[];
   readonly onToggle: (id: HealthSensitivity) => void;
 }> = ({ activeList, onToggle }) => (
-  <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-    <span className="block text-xs font-semibold text-slate-600 dark:text-slate-400">
-      Household Vulnerabilities & Sensitivities
+  <div className="space-y-2 pt-3 border-t border-neutral-200 dark:border-neutral-800">
+    <span className="block text-[11px] font-mono uppercase tracking-wider text-neutral-400">
+      [ HOUSEHOLD VULNERABILITIES &amp; SENSITIVITIES ]
     </span>
     <div className="flex flex-wrap gap-2">
       {SENSITIVITIES.map((opt) => {
@@ -30,10 +30,10 @@ const SensitivityChips: React.FC<{
         return (
           <button
             key={opt.id} type="button" onClick={() => { onToggle(opt.id); }}
-            className={`px-3 py-1.5 rounded-xl text-xs font-medium border cursor-pointer ${
+            className={`px-3 py-1.5 rounded-full text-xs font-mono transition-all cursor-pointer ${
               active
-                ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border-sky-300 dark:border-sky-800'
-                : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'
+                ? 'bg-[#00FFC2]/15 text-[#00FFC2] border border-[#00FFC2]/50 font-bold'
+                : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700 hover:text-white'
             }`}
             aria-pressed={active}
           >

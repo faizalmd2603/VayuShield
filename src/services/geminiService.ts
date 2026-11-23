@@ -4,10 +4,13 @@ import { GeminiApiError } from '../types/errors';
 import type { ChatMessage, GeminiModelName, VayuShieldPlan } from '../types/gemini';
 import type { LifestyleProfile } from '../types/profile';
 import { isValidVayuShieldPlan, VAYUSHIELD_PLAN_RESPONSE_SCHEMA } from './geminiSchemas';
+import { callOpenRouterCompletion, streamOpenRouterChat } from './openRouterService';
 import { sanitizeUserInput } from './sanitizer';
 
 export interface PlanGenerationRequest {
   readonly apiKey: string;
+  readonly backupApiKey?: string;
+  readonly openRouterApiKey?: string;
   readonly telemetry: CombinedAirTelemetry;
   readonly profile: LifestyleProfile;
   readonly model?: GeminiModelName;
@@ -16,6 +19,8 @@ export interface PlanGenerationRequest {
 
 export interface ChatStreamRequest {
   readonly apiKey: string;
+  readonly backupApiKey?: string;
+  readonly openRouterApiKey?: string;
   readonly messages: readonly ChatMessage[];
   readonly telemetry: CombinedAirTelemetry;
   readonly profile: LifestyleProfile;
@@ -238,8 +243,65 @@ function parseAndValidatePlan(
   };
 }
 
+async function callPlanAttempt(
+  model: GeminiModelName,
+  key: string,
+  payload: Record<string, unknown>,
+  signal?: AbortSignal
+): Promise<string | undefined> {
+  const res = await callWithRetryAndFallback(model, key, payload, signal);
+  const data = (await res.json()) as {
+    candidates?: readonly { content?: { parts?: readonly { text?: string }[] } }[];
+  };
+  return data.candidates?.[0]?.content?.parts?.[0]?.text;
+}
+
+async function tryBackupKeyOrOpenRouter(
+  model: GeminiModelName,
+  payload: Record<string, unknown>,
+  request: PlanGenerationRequest,
+  promptText: string
+): Promise<{ readonly text: string | undefined; readonly modelUsed: string } | null> {
+  if (request.backupApiKey && request.backupApiKey !== request.apiKey) {
+    try {
+      const text = await callPlanAttempt(model, request.backupApiKey, payload, request.signal);
+      return { text, modelUsed: `${model} (backup-key)` };
+    } catch {
+      // Continue to OpenRouter
+    }
+  }
+  if (request.openRouterApiKey) {
+    const openRouterText = await callOpenRouterCompletion({
+      apiKey: request.openRouterApiKey,
+      prompt: promptText,
+      signal: request.signal,
+    });
+    return { text: openRouterText, modelUsed: 'openrouter/google/gemini-2.5-flash' };
+  }
+  return null;
+}
+
 /**
- * Generates a complete VayuShield structured action plan via Gemini.
+ * Executes structured plan generation with multi-key and OpenRouter fallback.
+ */
+async function executePlanWithFallback(
+  model: GeminiModelName,
+  payload: Record<string, unknown>,
+  request: PlanGenerationRequest,
+  promptText: string
+): Promise<{ readonly text: string | undefined; readonly modelUsed: string }> {
+  try {
+    const text = await callPlanAttempt(model, request.apiKey, payload, request.signal);
+    return { text, modelUsed: model };
+  } catch (err: unknown) {
+    const fallback = await tryBackupKeyOrOpenRouter(model, payload, request, promptText);
+    if (fallback) return fallback;
+    throw err;
+  }
+}
+
+/**
+ * Generates a complete VayuShield structured action plan via Gemini or fallback providers.
  *
  * @param request Configuration and telemetry request
  * @returns Fully typed and validated VayuShieldPlan
@@ -248,11 +310,9 @@ export async function generateVayuShieldPlan(
   request: PlanGenerationRequest
 ): Promise<VayuShieldPlan> {
   const {
-    apiKey,
     telemetry,
     profile,
     model = API_CONFIG.GEMINI.MODELS.PRIMARY,
-    signal,
   } = request;
 
   const promptText = buildPlanPrompt(telemetry, profile);
@@ -265,15 +325,8 @@ export async function generateVayuShieldPlan(
     },
   };
 
-  const response = await callWithRetryAndFallback(model, apiKey, payload, signal);
-  const rawData = (await response.json()) as {
-    candidates?: readonly {
-      content?: { parts?: readonly { text?: string }[] };
-    }[];
-  };
-
-  const text = rawData.candidates?.[0]?.content?.parts?.[0]?.text;
-  return parseAndValidatePlan(text, telemetry.location.name, model);
+  const outcome = await executePlanWithFallback(model, payload, request, promptText);
+  return parseAndValidatePlan(outcome.text, telemetry.location.name, outcome.modelUsed);
 }
 
 interface SsePayload {
@@ -311,44 +364,49 @@ function extractSseText(line: string): string | null {
 }
 
 /**
- * Handles real-time SSE streaming chat with Google Gemini models.
- *
- * @param request Streaming chat configuration
- * @returns Accumulated complete message string
+ * Initiates streaming connection with primary and backup key fallback.
  */
-export async function streamGeminiChat(request: ChatStreamRequest): Promise<string> {
-  const {
-    apiKey,
-    messages,
-    telemetry,
-    profile,
-    onChunk,
-    model = API_CONFIG.GEMINI.MODELS.PRIMARY,
-    signal,
-  } = request;
+async function fetchGeminiStream(
+  url: string,
+  body: string,
+  request: ChatStreamRequest
+): Promise<Response> {
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': request.apiKey },
+      body,
+      signal: request.signal,
+    });
+    if (res.ok) return res;
+    if (request.backupApiKey && request.backupApiKey !== request.apiKey) {
+      const backupRes = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': request.backupApiKey },
+        body,
+        signal: request.signal,
+      });
+      if (backupRes.ok) return backupRes;
+    }
+    throw handleGeminiErrorStatus(res.status);
+  } catch (err: unknown) {
+    if (request.backupApiKey && request.backupApiKey !== request.apiKey) {
+      const backupRes = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': request.backupApiKey },
+        body,
+        signal: request.signal,
+      });
+      if (backupRes.ok) return backupRes;
+    }
+    throw err;
+  }
+}
 
-  const url = `${API_CONFIG.GEMINI.BASE_URL}/${model}:streamGenerateContent?alt=sse`;
-  const systemContext = `You are VayuShield Smog Copilot. Live context: ${telemetry.location.name}, CPCB AQI: ${telemetry.cpcbAqi.aqi} (${telemetry.cpcbAqi.category}), Dominant: ${telemetry.cpcbAqi.dominantPollutant}, GRAP: ${telemetry.grapStage}, User Housing: ${profile.housingType}, Commute: ${profile.commuteMode}. Provide actionable, science-grounded answers. In every answer with action suggestions, include a concise Direct Choice Impact section.`;
-
-  const contents = [
-    { role: 'user', parts: [{ text: systemContext }] },
-    ...messages.map((m) => ({
-      role: m.role,
-      parts: [{ text: sanitizeUserInput(m.content) }],
-    })),
-  ];
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
-    body: JSON.stringify({ contents, generationConfig: { temperature: 0.4 } }),
-    signal,
-  });
-
-  if (!res.ok) throw handleGeminiErrorStatus(res.status);
-  const reader = res.body?.getReader();
-  if (!reader) throw new GeminiApiError('Streaming not supported', 'SCHEMA_INVALID');
-
+async function consumeSseStream(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  onChunk: (chunk: string) => void
+): Promise<string> {
   const decoder = new TextDecoder();
   let fullAccumulated = '';
   let buffer = '';
@@ -372,4 +430,67 @@ export async function streamGeminiChat(request: ChatStreamRequest): Promise<stri
   }
 
   return fullAccumulated;
+}
+
+async function obtainStreamResponse(
+  url: string,
+  body: string,
+  systemContext: string,
+  request: ChatStreamRequest
+): Promise<Response | string> {
+  try {
+    return await fetchGeminiStream(url, body, request);
+  } catch (err: unknown) {
+    if (request.openRouterApiKey) {
+      return streamOpenRouterChat({
+        apiKey: request.openRouterApiKey,
+        systemPrompt: systemContext,
+        messages: request.messages,
+        onChunk: request.onChunk,
+        signal: request.signal,
+      });
+    }
+    throw err;
+  }
+}
+
+/**
+ * Handles real-time SSE streaming chat with Google Gemini models and OpenRouter fallback.
+ *
+ * @param request Streaming chat configuration
+ * @returns Accumulated complete message string
+ */
+export async function streamGeminiChat(request: ChatStreamRequest): Promise<string> {
+  const {
+    messages,
+    telemetry,
+    profile,
+    onChunk,
+    model = API_CONFIG.GEMINI.MODELS.PRIMARY,
+  } = request;
+
+  const url = `${API_CONFIG.GEMINI.BASE_URL}/${model}:streamGenerateContent?alt=sse`;
+  const systemContext = `You are VayuShield Smog Copilot. Live context: ${telemetry.location.name}, CPCB AQI: ${telemetry.cpcbAqi.aqi} (${telemetry.cpcbAqi.category}), Dominant: ${telemetry.cpcbAqi.dominantPollutant}, GRAP: ${telemetry.grapStage}, User Housing: ${profile.housingType}, Commute: ${profile.commuteMode}. Provide actionable, science-grounded answers. In every answer with action suggestions, include a concise Direct Choice Impact section.`;
+
+  const contents = [
+    { role: 'user', parts: [{ text: systemContext }] },
+    ...messages.map((m) => ({
+      role: m.role,
+      parts: [{ text: sanitizeUserInput(m.content) }],
+    })),
+  ];
+
+  const streamOutcome = await obtainStreamResponse(
+    url,
+    JSON.stringify({ contents, generationConfig: { temperature: 0.4 } }),
+    systemContext,
+    request
+  );
+
+  if (typeof streamOutcome === 'string') return streamOutcome;
+
+  const reader = streamOutcome.body?.getReader();
+  if (!reader) throw new GeminiApiError('Streaming not supported', 'SCHEMA_INVALID');
+
+  return consumeSseStream(reader, onChunk);
 }

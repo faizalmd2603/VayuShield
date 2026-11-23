@@ -14,44 +14,44 @@ const MetricsCards: React.FC<{
   readonly indoorEstimate: IndoorPollutionEstimate;
 }> = ({ roomMetrics, indoorEstimate }) => (
   <>
-    <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-3">
-      <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Purifier Sizing</span>
+    <div className="p-5 rounded-2xl bg-white dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 space-y-3 font-mono hover:border-[#00FFC2]/50 transition-colors">
+      <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">[ PURIFIER SIZING ]</span>
       <div className="space-y-2 text-xs">
         <div className="flex justify-between">
-          <span className="text-slate-500">Room Volume:</span>
-          <span className="font-mono font-bold text-slate-900 dark:text-slate-100">{roomMetrics.roomVolumeM3} m³</span>
+          <span className="text-neutral-500">Room Volume:</span>
+          <span className="font-bold text-neutral-900 dark:text-white">{roomMetrics.roomVolumeM3} m³</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-slate-500">Required Metric CADR:</span>
-          <span className="font-mono font-bold text-sky-600 dark:text-sky-400">{roomMetrics.requiredCadrM3H} m³/h</span>
+          <span className="text-neutral-500">Required CADR:</span>
+          <span className="font-bold text-[#00FFC2]">{roomMetrics.requiredCadrM3H} m³/h</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-slate-500">CFM Equivalent:</span>
-          <span className="font-mono font-bold">{roomMetrics.requiredCadrCfm} CFM</span>
+          <span className="text-neutral-500">CFM Equivalent:</span>
+          <span className="font-bold">{roomMetrics.requiredCadrCfm} CFM</span>
         </div>
       </div>
-      <div className="p-2.5 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-900 dark:text-sky-200 text-xs">
+      <div className="p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-sans">
         <strong>DIY Corsi-Rosenthal:</strong> Box fan + 4x MERV-13 filters delivers ~450 CFM, fully adequate.
       </div>
     </div>
 
-    <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-3">
-      <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Infiltration Model</span>
+    <div className="p-5 rounded-2xl bg-white dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 space-y-3 font-mono hover:border-[#00FFC2]/50 transition-colors">
+      <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">[ INFILTRATION MODEL ]</span>
       <div className="space-y-2 text-xs">
         <div className="flex justify-between">
-          <span className="text-slate-500">Outdoor PM2.5:</span>
-          <span className="font-mono font-bold">{indoorEstimate.outdoorPm25} µg/m³</span>
+          <span className="text-neutral-500">Outdoor PM2.5:</span>
+          <span className="font-bold">{indoorEstimate.outdoorPm25} µg/m³</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-slate-500">Estimated Indoor PM2.5:</span>
-          <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{indoorEstimate.estimatedIndoorPm25} µg/m³</span>
+          <span className="text-neutral-500">Indoor PM2.5:</span>
+          <span className="font-bold text-[#00FFC2]">{indoorEstimate.estimatedIndoorPm25} µg/m³</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-slate-500">Envelope Shield:</span>
-          <span className="font-mono font-bold text-teal-600 dark:text-teal-400">-{indoorEstimate.infiltrationReductionPercent}% Infiltration</span>
+          <span className="text-neutral-500">Envelope Shield:</span>
+          <span className="font-bold text-neutral-900 dark:text-white">-{indoorEstimate.infiltrationReductionPercent}% Infiltration</span>
         </div>
       </div>
-      <div className="p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 text-xs">
+      <div className="p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-sans">
         <strong>Pulmonary Shield:</strong> Cuts ~{Math.round(indoorEstimate.dailyInhaledDoseMicrograms)} µg daily inhaled dose.
       </div>
     </div>

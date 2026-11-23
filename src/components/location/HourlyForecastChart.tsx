@@ -8,22 +8,22 @@ interface Props {
 
 const ForecastTable: React.FC<{ readonly points: readonly HourlyAirQualityPoint[] }> = ({ points }) => (
   <div className="max-h-60 overflow-y-auto">
-    <table className="w-full text-xs text-left text-slate-700 dark:text-slate-300">
+    <table className="w-full text-xs text-left text-neutral-700 dark:text-neutral-300 font-mono">
       <caption className="sr-only">Detailed hourly forecast metrics</caption>
-      <thead className="bg-slate-50 dark:bg-slate-800 text-slate-500 uppercase sticky top-0">
+      <thead className="bg-neutral-100 dark:bg-neutral-800 text-neutral-400 uppercase sticky top-0">
         <tr>
-          <th className="py-2 px-3">Time</th>
-          <th className="py-2 px-3">PM2.5 (µg/m³)</th>
-          <th className="py-2 px-3">PM10 (µg/m³)</th>
-          <th className="py-2 px-3">Boundary Layer (m)</th>
-          <th className="py-2 px-3">Wind (km/h)</th>
+          <th className="py-2.5 px-3">Time</th>
+          <th className="py-2.5 px-3">PM2.5 (µg/m³)</th>
+          <th className="py-2.5 px-3">PM10 (µg/m³)</th>
+          <th className="py-2.5 px-3">Boundary Layer (m)</th>
+          <th className="py-2.5 px-3">Wind (km/h)</th>
         </tr>
       </thead>
-      <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+      <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
         {points.map((pt) => (
           <tr key={pt.time}>
             <td className="py-2 px-3 font-medium">{formatTimeHour(pt.time)}</td>
-            <td className="py-2 px-3">{pt.pm25}</td>
+            <td className="py-2 px-3 text-[#00FFC2] font-bold">{pt.pm25}</td>
             <td className="py-2 px-3">{pt.pm10}</td>
             <td className="py-2 px-3">{pt.boundaryLayerHeight}m</td>
             <td className="py-2 px-3">{pt.windSpeed10m}</td>
@@ -58,27 +58,27 @@ export const HourlyForecastChart: React.FC<Props> = ({ hourly }) => {
     .join(' ');
 
   return (
-    <section aria-label="Hourly Air Quality Forecast" className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+    <section aria-label="Hourly Air Quality Forecast" className="p-6 rounded-2xl bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-4 backdrop-blur-md hover:border-[#00FFC2]/50 transition-colors">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
-            24-Hour PM2.5 Trajectory
+          <h3 className="text-[11px] font-mono uppercase tracking-[0.2em] text-neutral-400">
+            [ 02 // 24-HOUR PM2.5 DISPERSION TRAJECTORY ]
           </h3>
-          <p className="text-xs text-slate-500">Hourly particulate concentration (µg/m³)</p>
+          <p className="text-xs text-neutral-500 font-mono mt-0.5">HOURLY PARTICULATE DENSITY (µg/m³)</p>
         </div>
         <button
           type="button"
           onClick={() => { setShowTable((prev) => !prev); }}
-          className="text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+          className="text-xs font-mono tracking-wider uppercase px-3 py-1.5 rounded-full border border-neutral-300 dark:border-neutral-700 hover:border-[#00FFC2] text-neutral-700 dark:text-neutral-300 transition-colors cursor-pointer"
           aria-expanded={showTable}
         >
-          {showTable ? 'Show Graphical Chart' : 'Show Screen-Reader Table'}
+          {showTable ? 'Graphical Curve' : 'Screen-Reader Table'}
         </button>
       </div>
 
       {!showTable ? (
         <div className="w-full overflow-x-auto">
-          <svg viewBox={`0 0 ${svgW} ${svgH}`} role="img" aria-label="24-hour PM2.5 trend graph" className="w-full h-44 text-sky-600 dark:text-sky-400">
+          <svg viewBox={`0 0 ${svgW} ${svgH}`} role="img" aria-label="24-hour PM2.5 trend graph" className="w-full h-44 text-[#00FFC2]">
             <title>24-Hour PM2.5 Hourly Trend</title>
             <desc>A continuous line graph plotting live hourly PM2.5 concentration.</desc>
             <path d={pathD} fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
@@ -87,9 +87,9 @@ export const HourlyForecastChart: React.FC<Props> = ({ hourly }) => {
               const pt = getPt(idx, p.pm25);
               return (
                 <g key={p.time}>
-                  <circle cx={pt.x} cy={pt.y} r={4} fill="currentColor" />
-                  <text x={pt.x} y={pt.y - 8} textAnchor="middle" fontSize={10} fill="currentColor" fontWeight="bold">{p.pm25}</text>
-                  <text x={pt.x} y={svgH - 8} textAnchor="middle" fontSize={9} fill="currentColor" fillOpacity={0.6}>{formatTimeHour(p.time)}</text>
+                  <circle cx={pt.x} cy={pt.y} r={4} fill="#00FFC2" />
+                  <text x={pt.x} y={pt.y - 8} textAnchor="middle" fontSize={11} fill="currentColor" fontWeight="bold" fontFamily="monospace">{p.pm25}</text>
+                  <text x={pt.x} y={svgH - 8} textAnchor="middle" fontSize={9} fill="currentColor" fillOpacity={0.6} fontFamily="monospace">{formatTimeHour(p.time)}</text>
                 </g>
               );
             })}

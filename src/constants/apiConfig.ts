@@ -15,6 +15,11 @@ export const API_CONFIG = {
     BACKOFF_BASE_MS: 1_000,
     TEMPERATURE: 0.3,
   },
+  OPENROUTER: {
+    BASE_URL: 'https://openrouter.ai/api/v1/chat/completions',
+    MODEL: 'google/gemini-2.5-flash',
+    TIMEOUT_MS: 30_000,
+  },
   OPEN_METEO: {
     GEOCODING_URL: 'https://geocoding-api.open-meteo.com/v1/search',
     AIR_QUALITY_URL: 'https://air-quality-api.open-meteo.com/v1/air-quality',

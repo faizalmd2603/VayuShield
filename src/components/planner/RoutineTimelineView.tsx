@@ -14,60 +14,60 @@ const RoutineCard: React.FC<{
   readonly onToggle: (id: string) => void;
 }> = ({ step, isChecked, onToggle }) => (
   <div
-    className={`p-4 rounded-2xl border transition-all ${
+    className={`p-5 rounded-2xl border transition-all ${
       isChecked
-        ? 'bg-white dark:bg-slate-900 border-sky-300 dark:border-sky-800 shadow-sm'
-        : 'bg-slate-50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 opacity-70'
+        ? 'bg-white dark:bg-neutral-900/50 border-neutral-300 dark:border-neutral-700 shadow-sm hover:border-[#00FFC2]/50'
+        : 'bg-neutral-50 dark:bg-neutral-950/40 border-neutral-200 dark:border-neutral-800/80 opacity-60'
     }`}
   >
     <div className="flex items-start gap-3.5">
       <button
         type="button"
         onClick={() => { onToggle(step.id); }}
-        className={`w-6 h-6 rounded-lg mt-0.5 flex items-center justify-center border transition-colors cursor-pointer shrink-0 ${
+        className={`w-6 h-6 rounded-lg mt-0.5 flex items-center justify-center border transition-all cursor-pointer shrink-0 ${
           isChecked
-            ? 'bg-sky-600 border-sky-600 text-white'
-            : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-transparent'
+            ? 'bg-[#00FFC2] border-[#00FFC2] text-black shadow-sm'
+            : 'border-neutral-300 dark:border-neutral-700 bg-transparent text-transparent'
         }`}
         aria-checked={isChecked}
         role="checkbox"
         aria-label={`Toggle action: ${step.action}`}
       >
-        <CheckIcon className="w-4 h-4" />
+        <CheckIcon className="w-4 h-4 text-black stroke-[3]" />
       </button>
 
-      <div className="flex-1 space-y-1.5">
+      <div className="flex-1 space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+            <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700">
               {step.timeSlot}
             </span>
-            <span className="text-xs font-semibold text-sky-700 dark:text-sky-400">
+            <span className="text-xs font-mono font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
               {step.periodLabel}
             </span>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-medium">
-            <span className="px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+          <div className="flex items-center gap-2 text-xs font-mono">
+            <span className="px-2.5 py-0.5 rounded-full bg-[#00FFC2]/10 text-[#00FFC2] border border-[#00FFC2]/30 font-bold">
               -{step.directImpact.personalPm25ReductionUgm3} µg/m³
             </span>
-            <span className="px-2 py-0.5 rounded bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
+            <span className="px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700">
               -{step.directImpact.co2eAvoidedKg} kg CO₂e
             </span>
           </div>
         </div>
 
-        <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{step.action}</p>
+        <p className="text-sm font-bold text-neutral-950 dark:text-white leading-snug">{step.action}</p>
 
-        <div className="flex items-start gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-          <WindIcon className="w-3.5 h-3.5 shrink-0 mt-0.5 text-sky-500" />
-          <span><strong>Live Rationale:</strong> {step.whyNow}</span>
+        <div className="flex items-start gap-1.5 text-xs text-neutral-500 font-mono">
+          <WindIcon className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#00FFC2]" />
+          <span><strong>Rationale:</strong> {step.whyNow}</span>
         </div>
 
-        <div className="text-xs p-2.5 rounded-xl bg-slate-100/70 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300">
-          <strong>Alternative:</strong> {step.lowEmissionAlternative}
-          <div className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-0.5">
-            ✓ Health impact: {step.directImpact.healthBenefit}
+        <div className="text-xs p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800/50 text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-800">
+          <strong>Low-Emission Alternative:</strong> {step.lowEmissionAlternative}
+          <div className="text-[11px] text-[#00FFC2] font-mono mt-1 font-medium">
+            ✓ Health: {step.directImpact.healthBenefit}
           </div>
         </div>
       </div>

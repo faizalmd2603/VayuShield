@@ -20,23 +20,24 @@ export const Header: React.FC<Props> = ({
   onOpenApiKeyModal,
 }) => {
   return (
-    <header className="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
+    <header className="sticky top-0 z-40 bg-white/80 dark:bg-black/85 backdrop-blur-xl border-b border-neutral-200 dark:border-neutral-800/80 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-teal-500 flex items-center justify-center text-white shadow-sm shadow-sky-500/20">
-            <ShieldIcon className="w-6 h-6" />
+          <div className="w-9 h-9 rounded-xl bg-neutral-900 dark:bg-neutral-900 border border-neutral-700/60 dark:border-neutral-800 flex items-center justify-center text-[#00FFC2] shadow-sm">
+            <ShieldIcon className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-sky-700 to-teal-600 dark:from-sky-400 dark:to-teal-300 bg-clip-text text-transparent">
-                VayuShield
+              <span className="text-lg font-bold tracking-tight text-neutral-950 dark:text-white font-mono">
+                VAYUSHIELD<span className="text-[#00FFC2]">.</span>
               </span>
-              <span className="text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
-                Smog Copilot
+              <span className="text-[10px] uppercase font-mono tracking-wider px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-800 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#00FFC2] animate-pulse" />
+                <span>STUDIO</span>
               </span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
-              {locationName ? `Live Grounding: ${locationName}` : 'Urban Air Quality & Smog Defense'}
+            <p className="text-[11px] font-mono text-neutral-500 dark:text-neutral-400 hidden sm:block">
+              {locationName ? `LIVE // ${locationName}` : 'REAL-TIME ATMOSPHERIC INTELLIGENCE'}
             </p>
           </div>
         </div>
@@ -45,24 +46,24 @@ export const Header: React.FC<Props> = ({
           <button
             type="button"
             onClick={onOpenApiKeyModal}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono tracking-wider uppercase border transition-all cursor-pointer ${
               hasValidKey
-                ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
-                : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800 animate-pulse'
+                ? 'bg-neutral-100 dark:bg-neutral-900 text-neutral-800 dark:text-neutral-200 border-neutral-300 dark:border-neutral-700 hover:border-[#00FFC2]'
+                : 'bg-amber-500/10 text-amber-500 border-amber-500/40 animate-pulse'
             }`}
             aria-label="Configure Google Gemini API Key"
           >
-            <KeyIcon className="w-4 h-4" />
-            <span className="hidden xs:inline">{hasValidKey ? 'Gemini Linked' : 'Connect Gemini'}</span>
+            <KeyIcon className="w-3.5 h-3.5 text-[#00FFC2]" />
+            <span className="hidden xs:inline">{hasValidKey ? 'API Connected' : 'Connect Key'}</span>
           </button>
 
           <button
             type="button"
             onClick={onToggleTheme}
-            className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors cursor-pointer"
+            className="p-2 rounded-full text-neutral-600 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white border border-transparent hover:border-neutral-200 dark:hover:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-[#00FFC2] transition-colors cursor-pointer"
             aria-label={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
           >
-            {theme === 'light' ? <MoonIcon className="w-5 h-5" /> : <SunIcon className="w-5 h-5" />}
+            {theme === 'light' ? <MoonIcon className="w-4 h-4" /> : <SunIcon className="w-4 h-4" />}
           </button>
         </div>
       </div>

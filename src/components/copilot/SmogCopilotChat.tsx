@@ -18,15 +18,15 @@ const ChatBubble: React.FC<{ readonly msg: ChatMessage }> = ({ msg }) => {
   return (
     <div className={`flex flex-col ${isUser ? 'items-end' : 'items-start'}`}>
       <div
-        className={`max-w-[85%] rounded-2xl p-3.5 ${
+        className={`max-w-[85%] rounded-2xl p-4 text-xs sm:text-sm leading-relaxed ${
           isUser
-            ? 'bg-sky-600 text-white rounded-br-xs'
-            : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-bl-xs'
+            ? 'bg-neutral-900 text-white dark:bg-white dark:text-black rounded-br-xs font-sans font-medium'
+            : 'bg-white dark:bg-neutral-900/70 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-bl-xs'
         }`}
       >
         <SafeMarkdown content={msg.content} />
       </div>
-      <span className="text-[10px] text-slate-400 mt-1 px-1">{msg.timestamp}</span>
+      <span className="text-[10px] font-mono text-neutral-400 mt-1 px-1">{msg.timestamp}</span>
     </div>
   );
 };
@@ -36,16 +36,21 @@ const EmptyChatPrompt: React.FC<{
   readonly chips: readonly string[];
   readonly onSelectChip: (text: string) => void;
 }> = ({ locationName, chips, onSelectChip }) => (
-  <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3 text-slate-500">
-    <SparklesIcon className="w-8 h-8 text-sky-400 opacity-60" />
-    <p className="text-xs max-w-sm">Ask any question grounded in live {locationName} AQI.</p>
-    <div className="flex flex-wrap justify-center gap-1.5 max-w-md pt-2">
+  <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4 text-neutral-500">
+    <div className="w-10 h-10 rounded-full border border-neutral-300 dark:border-neutral-800 flex items-center justify-center text-[#00FFC2]">
+      <SparklesIcon className="w-5 h-5" />
+    </div>
+    <div className="space-y-1">
+      <p className="text-xs font-mono uppercase tracking-widest text-neutral-400">[ LIVE CONVERSATIONAL GROUNDING ]</p>
+      <p className="text-xs max-w-sm font-sans text-neutral-600 dark:text-neutral-400">Ask any question grounded in live {locationName} telemetry and household profile.</p>
+    </div>
+    <div className="flex flex-wrap justify-center gap-2 max-w-md pt-1">
       {chips.map((chip, idx) => (
         <button
           key={idx}
           type="button"
           onClick={() => { onSelectChip(chip); }}
-          className="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs text-left transition-colors cursor-pointer"
+          className="px-3.5 py-2 rounded-full bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-900 dark:hover:bg-neutral-850 border border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs text-left transition-colors cursor-pointer"
         >
           {chip}
         </button>
@@ -55,7 +60,7 @@ const EmptyChatPrompt: React.FC<{
 );
 
 /**
- * Real-time SSE streaming Smog Copilot with multi-turn context memory.
+ * Real-time SSE streaming Smog Copilot with multi-turn context memory in NK Studio aesthetic.
  */
 export const SmogCopilotChat: React.FC<Props> = ({
   apiKey,
@@ -87,17 +92,17 @@ export const SmogCopilotChat: React.FC<Props> = ({
   ];
 
   return (
-    <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 flex flex-col h-[580px]">
-      <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-        <div className="flex items-center gap-2">
-          <SparklesIcon className="w-5 h-5 text-sky-500" />
-          <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Streaming Smog Copilot</h3>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300">
+    <div className="p-6 rounded-2xl bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-4 flex flex-col h-[580px] backdrop-blur-md">
+      <div className="flex items-center justify-between pb-3 border-b border-neutral-200 dark:border-neutral-800">
+        <div className="flex items-center gap-2.5">
+          <SparklesIcon className="w-4 h-4 text-[#00FFC2]" />
+          <h3 className="text-sm font-bold font-mono tracking-wider uppercase text-neutral-950 dark:text-white">Streaming Smog Copilot</h3>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-700">
             {selectedModel}
           </span>
         </div>
         {messages.length > 0 && (
-          <button type="button" onClick={() => { clearChat(); }} className="text-xs text-slate-400 hover:text-slate-600 cursor-pointer">
+          <button type="button" onClick={() => { clearChat(); }} className="text-xs font-mono uppercase tracking-wider text-neutral-400 hover:text-white cursor-pointer">
             Clear History
           </button>
         )}
@@ -110,14 +115,14 @@ export const SmogCopilotChat: React.FC<Props> = ({
         {messages.map((msg) => <ChatBubble key={msg.id} msg={msg} />)}
         {streamingChunk && (
           <div className="flex flex-col items-start">
-            <div className="max-w-[85%] rounded-2xl p-3.5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-bl-xs">
+            <div className="max-w-[85%] rounded-2xl p-4 bg-white dark:bg-neutral-900/80 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-bl-xs text-xs sm:text-sm">
               <SafeMarkdown content={streamingChunk} />
             </div>
           </div>
         )}
         {error && (
-          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 text-xs flex items-center gap-2">
-            <AlertIcon className="w-4 h-4 shrink-0 text-rose-500" />
+          <div className="p-3.5 rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/30 text-xs font-mono flex items-center gap-2">
+            <AlertIcon className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}
@@ -126,17 +131,17 @@ export const SmogCopilotChat: React.FC<Props> = ({
 
       <form
         onSubmit={(e) => { e.preventDefault(); handleSend(inputVal); }}
-        className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800"
+        className="flex items-center gap-2 pt-3 border-t border-neutral-200 dark:border-neutral-800"
       >
         <input
           type="text" value={inputVal} onChange={(e) => { setInputVal(e.target.value); }}
           placeholder="Ask Smog Copilot about routines, CADR, school commutes, RWA protocols..."
           disabled={isStreaming}
-          className="flex-1 px-4 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+          className="flex-1 px-4 py-3 text-xs sm:text-sm rounded-full border border-neutral-300 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900/60 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-[#00FFC2]"
         />
         <button
           type="submit" disabled={isStreaming || !inputVal.trim()}
-          className="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white font-medium text-xs sm:text-sm cursor-pointer shrink-0"
+          className="px-5 py-3 rounded-full bg-[#00FFC2] hover:bg-[#00e6ae] disabled:opacity-40 text-black font-mono font-bold text-xs uppercase tracking-wider cursor-pointer shrink-0 transition-all shadow-md shadow-[#00FFC2]/20"
         >
           {isStreaming ? 'Streaming...' : 'Send'}
         </button>

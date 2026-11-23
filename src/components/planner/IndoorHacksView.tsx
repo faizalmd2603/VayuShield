@@ -35,10 +35,10 @@ export const IndoorHacksView: React.FC<Props> = ({ hacks }) => {
               key={cat}
               type="button"
               onClick={() => { setActiveCategory(cat); }}
-              className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors cursor-pointer ${
+              className={`px-3 py-1 text-[10px] font-mono uppercase tracking-wider rounded-full transition-all cursor-pointer ${
                 activeCategory === cat
-                  ? 'bg-teal-600 text-white'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                  ? 'bg-neutral-900 text-white dark:bg-white dark:text-black font-bold'
+                  : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-white border border-neutral-200 dark:border-neutral-700'
               }`}
             >
               {cat === 'all' ? 'All Hacks' : cat}
@@ -51,38 +51,38 @@ export const IndoorHacksView: React.FC<Props> = ({ hacks }) => {
         {filtered.map((hack) => (
           <div
             key={hack.id}
-            className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3 flex flex-col justify-between"
+            className="p-5 rounded-2xl bg-white dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-3 flex flex-col justify-between hover:border-[#00FFC2]/50 transition-colors"
           >
             <div>
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700">
                   {hack.category}
                 </span>
-                <span className="text-xs text-slate-400">
-                  Cost: <strong className="text-slate-700 dark:text-slate-200">{hack.estimatedCost}</strong> • Effort: {hack.effortLevel}
+                <span className="text-xs font-mono text-neutral-400">
+                  Cost: <strong className="text-neutral-900 dark:text-white">{hack.estimatedCost}</strong> • Effort: {hack.effortLevel}
                 </span>
               </div>
 
-              <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100 mt-2">
+              <h4 className="text-sm font-bold text-neutral-950 dark:text-white mt-2">
                 {hack.title}
               </h4>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-relaxed">
                 {hack.description}
               </p>
             </div>
 
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-1.5 text-xs">
+            <div className="pt-2 border-t border-neutral-100 dark:border-neutral-800/80 space-y-1.5 text-xs font-mono">
               <div className="flex items-start justify-between gap-2">
-                <span className="text-slate-500">Direct Health Impact:</span>
-                <span className="font-medium text-emerald-600 dark:text-emerald-400 text-right">{hack.directHealthImpact}</span>
+                <span className="text-neutral-500">Health Impact:</span>
+                <span className="font-bold text-[#00FFC2] text-right">{hack.directHealthImpact}</span>
               </div>
               <div className="flex items-start justify-between gap-2">
-                <span className="text-slate-500">Emission Impact:</span>
-                <span className="font-medium text-sky-600 dark:text-sky-400 text-right">{hack.directEmissionImpact}</span>
+                <span className="text-neutral-500">Emission Impact:</span>
+                <span className="font-medium text-neutral-700 dark:text-neutral-300 text-right">{hack.directEmissionImpact}</span>
               </div>
               <div className="flex items-start justify-between gap-2">
-                <span className="text-slate-500">Filtration Delta:</span>
-                <span className="font-mono text-slate-700 dark:text-slate-300 text-right">{hack.achCadrImprovement}</span>
+                <span className="text-neutral-500">Filtration Delta:</span>
+                <span className="font-mono text-[#00FFC2] text-right">{hack.achCadrImprovement}</span>
               </div>
             </div>
           </div>

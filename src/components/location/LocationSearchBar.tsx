@@ -34,20 +34,20 @@ export const LocationSearchBar: React.FC<Props> = ({
     <div className="relative w-full">
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-            <SearchIcon className="w-5 h-5" />
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
+            <SearchIcon className="w-4 h-4 text-neutral-400" />
           </div>
           <input
             type="text"
             value={query}
             onChange={(e) => { setQuery(e.target.value); }}
             placeholder={placeholder}
-            className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm transition-colors"
+            className="w-full pl-10 pr-4 py-3 text-sm rounded-full border border-neutral-300 dark:border-neutral-800 bg-white/80 dark:bg-neutral-900/60 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:border-[#00FFC2] focus:ring-1 focus:ring-[#00FFC2] shadow-sm transition-all"
             aria-label="Search city or locality"
           />
           {isSearching && (
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <div className="w-4 h-4 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
+            <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+              <div className="w-3.5 h-3.5 border-2 border-[#00FFC2] border-t-transparent rounded-full animate-spin" />
             </div>
           )}
         </div>
@@ -56,22 +56,22 @@ export const LocationSearchBar: React.FC<Props> = ({
           type="button"
           onClick={() => { void fetchGpsLocation(); }}
           disabled={isGpsLocating}
-          className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer shrink-0"
+          className="flex items-center gap-1.5 px-4 py-3 rounded-full bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-900 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-mono tracking-wider uppercase border border-neutral-300 dark:border-neutral-800 hover:border-[#00FFC2] transition-colors cursor-pointer shrink-0"
           aria-label="Use browser GPS location"
         >
-          <GpsIcon className={`w-4 h-4 ${isGpsLocating ? 'animate-spin' : ''}`} />
+          <GpsIcon className={`w-3.5 h-3.5 text-[#00FFC2] ${isGpsLocating ? 'animate-spin' : ''}`} />
           <span className="hidden sm:inline">Use GPS</span>
         </button>
       </div>
 
       {error && (
-        <p className="mt-1.5 text-xs text-rose-600 dark:text-rose-400 px-1" role="alert">
+        <p className="mt-1.5 text-xs text-rose-500 px-3 font-mono" role="alert">
           {error}
         </p>
       )}
 
       {candidates.length > 0 && (
-        <ul className="absolute z-50 left-0 right-0 mt-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+        <ul className="absolute z-50 left-0 right-0 mt-2 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-xl border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-2xl overflow-hidden divide-y divide-neutral-100 dark:divide-neutral-800/80">
           {candidates.map((loc) => (
             <li key={`${loc.name}-${loc.latitude}-${loc.longitude}`}>
               <button
@@ -80,10 +80,10 @@ export const LocationSearchBar: React.FC<Props> = ({
                   onSelectLocation(loc);
                   clearSearch();
                 }}
-                className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-between text-slate-800 dark:text-slate-200 cursor-pointer"
+                className="w-full text-left px-5 py-3 text-sm hover:bg-neutral-50 dark:hover:bg-neutral-800/60 flex items-center justify-between text-neutral-800 dark:text-neutral-200 cursor-pointer transition-colors"
               >
-                <span className="font-medium">{loc.name}</span>
-                <span className="text-xs text-slate-400">
+                <span className="font-semibold">{loc.name}</span>
+                <span className="text-xs font-mono text-neutral-400">
                   {loc.admin1 ? `${loc.admin1}, ` : ''}{loc.country}
                 </span>
               </button>
