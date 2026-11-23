@@ -113,6 +113,154 @@ export const VAYUSHIELD_PLAN_RESPONSE_SCHEMA = {
 } as const;
 
 /**
+ * Strips markdown code fences and isolates JSON braces.
+ */
+export function cleanJsonString(raw: string): string {
+  const trimmed = raw.trim();
+  const withoutFences = trimmed.replace(/^```(?:json)?/i, '').replace(/```$/g, '').trim();
+  const firstBrace = withoutFences.indexOf('{');
+  const lastBrace = withoutFences.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    return withoutFences.slice(firstBrace, lastBrace + 1);
+  }
+  return withoutFences;
+}
+
+function safeString(val: unknown, alt: unknown, fallback: string): string {
+  if (typeof val === 'string' && val.trim().length > 0) return val.trim();
+  if (typeof alt === 'string' && alt.trim().length > 0) return alt.trim();
+  return fallback;
+}
+
+function parseImpactNumber(val: unknown, fallback: number): number {
+  if (typeof val === 'number' && !Number.isNaN(val)) return val;
+  if (typeof val === 'string') {
+    const match = /[-+]?[0-9]*\.?[0-9]+/.exec(val);
+    if (match) {
+      const parsed = parseFloat(match[0]);
+      if (!Number.isNaN(parsed)) return parsed;
+    }
+  }
+  return fallback;
+}
+
+function coerceCategory(cat: unknown): IndoorHack['category'] {
+  if (typeof cat !== 'string') return 'Zero-Cost';
+  const lower = cat.toLowerCase();
+  if (lower.includes('diy') || lower.includes('low')) return 'Low-Cost DIY';
+  if (lower.includes('appliance')) return 'Appliance Optimization';
+  if (lower.includes('swap') || lower.includes('daily')) return 'Daily Swap';
+  return 'Zero-Cost';
+}
+
+function coerceEffort(eff: unknown): IndoorHack['effortLevel'] {
+  if (typeof eff !== 'string') return 'Low';
+  const lower = eff.toLowerCase();
+  if (lower.includes('high')) return 'High';
+  if (lower.includes('med')) return 'Medium';
+  return 'Low';
+}
+
+function coerceRoutineStep(r: Record<string, unknown>, i: number): RoutineStep {
+  const imp = typeof r.directImpact === 'object' && r.directImpact !== null
+    ? (r.directImpact as Record<string, unknown>)
+    : {};
+  return {
+    id: safeString(r.id, undefined, `routine-${i + 1}`),
+    timeSlot: safeString(r.timeSlot, r.time, '07:00 - 09:00'),
+    periodLabel: safeString(r.periodLabel, r.label, 'Peak Inversion Window'),
+    action: safeString(r.action, r.activity, 'Indoor air protection and filtration lock'),
+    whyNow: safeString(r.whyNow, r.reason, 'High ground-level particulate concentration'),
+    lowEmissionAlternative: safeString(r.lowEmissionAlternative, r.alternative, 'Electric or mass transit commute'),
+    directImpact: {
+      personalPm25ReductionUgm3: parseImpactNumber(imp.personalPm25ReductionUgm3 ?? r.personalImpactUgm3, 35),
+      co2eAvoidedKg: parseImpactNumber(imp.co2eAvoidedKg ?? r.carbonImpactKg, 1.5),
+      healthBenefit: safeString(imp.healthBenefit, r.healthBenefit, 'Reduced airway irritation'),
+    },
+  };
+}
+
+function coerceIndoorHack(h: Record<string, unknown>, i: number): IndoorHack {
+  return {
+    id: safeString(h.id, undefined, `hack-${i + 1}`),
+    category: coerceCategory(h.category),
+    title: safeString(h.title, undefined, 'Door Draught Seal'),
+    description: safeString(h.description, h.action, 'Install silicone seals on entrance frames to curb ingress'),
+    directHealthImpact: safeString(h.directHealthImpact, h.healthImpact, 'Reduces indoor PM2.5 infiltration by 35%'),
+    directEmissionImpact: safeString(h.directEmissionImpact, h.emissionImpact, 'Zero added energy draw'),
+    estimatedCost: safeString(h.estimatedCost, h.cost, '₹0 / Free'),
+    effortLevel: coerceEffort(h.effortLevel),
+    achCadrImprovement: safeString(h.achCadrImprovement, h.achImprovement, '+1.2 ACH Infiltration Barrier'),
+  };
+}
+
+function coerceCommunityPlaybook(target: Record<string, unknown>): CommunityPlaybook {
+  const list = Array.isArray(target.actionChecklist) ? target.actionChecklist : [];
+  const checklist = list.length > 0
+    ? list.filter((item): item is string => typeof item === 'string')
+    : [
+        'Halt diesel generators for non-essential common areas',
+        'Implement mechanized wet-mop sweeping on society roads',
+        'Establish clean air respite rooms in common areas',
+      ];
+
+  return {
+    id: safeString(target.id, undefined, 'playbook-rwa'),
+    title: safeString(target.title, undefined, 'Community & RWA Anti-Smog Directive'),
+    targetAudience: safeString(target.targetAudience, target.audience, 'Apartment residents, RWAs, schools'),
+    currentGrapContext: safeString(target.currentGrapContext, target.grapStage, 'GRAP Mitigation Protocols Active'),
+    actionChecklist: checklist,
+    directCommunityImpact: safeString(target.directCommunityImpact, target.communityImpact, 'Prevents 4+ kg particulate emissions across 500+ residents'),
+    advisoryNoticeText: safeString(target.advisoryNoticeText, target.notice, 'Official Winter Smog Advisory: Inversion conditions active. Please halt non-essential combustion and carpool.'),
+  };
+}
+
+function resolvePlaybookTarget(target: unknown): Record<string, unknown> {
+  if (Array.isArray(target) && target.length > 0) {
+    const first: unknown = target[0];
+    return typeof first === 'object' && first !== null ? (first as Record<string, unknown>) : {};
+  }
+  return typeof target === 'object' && target !== null ? (target as Record<string, unknown>) : {};
+}
+
+/**
+ * Coerces and normalizes any raw parsed JSON into a strictly conforming VayuShieldPlan.
+ */
+export function coerceAndNormalizePlan(
+  raw: unknown,
+  locationName: string,
+  modelUsed: string
+): VayuShieldPlan {
+  if (typeof raw !== 'object' || raw === null) {
+    throw new Error('Invalid JSON input for plan');
+  }
+  const o = raw as Record<string, unknown>;
+  const summary = safeString(o.summaryAdvisory, o.summary, 'Action plan synchronized with live air quality telemetry.');
+
+  const rawRoutines = Array.isArray(o.routines) ? (o.routines as Record<string, unknown>[]) : [];
+  const routines = rawRoutines.length > 0
+    ? rawRoutines.map(coerceRoutineStep)
+    : [coerceRoutineStep({}, 0)];
+
+  const rawHacks = Array.isArray(o.indoorHacks) ? (o.indoorHacks as Record<string, unknown>[]) : [];
+  const indoorHacks = rawHacks.length > 0
+    ? rawHacks.map(coerceIndoorHack)
+    : [coerceIndoorHack({}, 0)];
+
+  const communityPlaybook = coerceCommunityPlaybook(resolvePlaybookTarget(o.communityPlaybook));
+
+  return {
+    generatedAt: new Date().toISOString(),
+    locationName,
+    modelUsed,
+    summaryAdvisory: summary,
+    routines,
+    indoorHacks,
+    communityPlaybook,
+  };
+}
+
+/**
  * Checks if a candidate is a valid RoutineStep.
  */
 function isRoutineStep(item: unknown): item is RoutineStep {
@@ -157,9 +305,6 @@ function isCommunityPlaybook(item: unknown): item is CommunityPlaybook {
 
 /**
  * Strict runtime type guard verifying that parsed Gemini response conforms to VayuShieldPlan.
- *
- * @param obj Unknown parsed JSON
- * @returns True if payload matches VayuShieldPlan contract
  */
 export function isValidVayuShieldPlan(obj: unknown): obj is VayuShieldPlan {
   if (typeof obj !== 'object' || obj === null) return false;

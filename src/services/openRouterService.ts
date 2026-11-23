@@ -42,7 +42,7 @@ export async function callOpenRouterCompletion(
       messages: [
         {
           role: 'system',
-          content: 'You must respond ONLY with valid JSON conforming to the requested schema. No markdown formatting.',
+          content: 'You must respond ONLY with valid JSON conforming to the requested schema. No markdown formatting. Required top-level keys: summaryAdvisory, routines, indoorHacks, communityPlaybook.',
         },
         { role: 'user', content: prompt },
       ],

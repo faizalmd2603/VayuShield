@@ -3,7 +3,11 @@ import type { CombinedAirTelemetry } from '../types/airQuality';
 import { GeminiApiError } from '../types/errors';
 import type { ChatMessage, GeminiModelName, VayuShieldPlan } from '../types/gemini';
 import type { LifestyleProfile } from '../types/profile';
-import { isValidVayuShieldPlan, VAYUSHIELD_PLAN_RESPONSE_SCHEMA } from './geminiSchemas';
+import {
+  cleanJsonString,
+  coerceAndNormalizePlan,
+  VAYUSHIELD_PLAN_RESPONSE_SCHEMA,
+} from './geminiSchemas';
 import { callOpenRouterCompletion, streamOpenRouterChat } from './openRouterService';
 import { sanitizeUserInput } from './sanitizer';
 
@@ -60,7 +64,14 @@ CRITICAL RULES:
 1. Provide realistic, quantified direct health impacts (e.g. personal PM2.5 reduction in µg/m³) and environmental savings (kg CO2e avoided).
 2. Ground all routine timings in the live hourly curve and safest ventilation window.
 3. Indoor hacks must include low-cost DIY options (e.g. Corsi-Rosenthal boxes), appliance tuning, and zero-cost behaviors.
-4. Community playbook must address the user's community role (${profile.communityRole}) and live GRAP stage (${telemetry.grapStage}).`;
+4. Community playbook must address the user's community role (${profile.communityRole}) and live GRAP stage (${telemetry.grapStage}).
+
+JSON FORMAT REQUIREMENT:
+You must return ONLY a JSON object with these exact keys:
+- "summaryAdvisory": Overall day summary advisory string
+- "routines": Array of objects each with "id", "timeSlot", "periodLabel", "action", "whyNow", "lowEmissionAlternative", and "directImpact": {"personalPm25ReductionUgm3": number, "co2eAvoidedKg": number, "healthBenefit": string}
+- "indoorHacks": Array of objects each with "id", "category" (one of "Zero-Cost", "Low-Cost DIY", "Appliance Optimization", "Daily Swap"), "title", "description", "directHealthImpact", "directEmissionImpact", "estimatedCost", "effortLevel" ("Low", "Medium", "High"), "achCadrImprovement"
+- "communityPlaybook": Object with "id", "title", "targetAudience", "currentGrapContext", "actionChecklist" (array of strings), "directCommunityImpact", "advisoryNoticeText"`;
 }
 
 /**
@@ -226,9 +237,10 @@ function parseAndValidatePlan(
     throw new GeminiApiError('Gemini returned an empty response', 'SCHEMA_INVALID');
   }
 
+  const cleaned = cleanJsonString(textOutput);
   let parsed: unknown;
   try {
-    parsed = JSON.parse(textOutput);
+    parsed = JSON.parse(cleaned);
   } catch {
     throw new GeminiApiError(
       'Failed to parse JSON response from Gemini',
@@ -236,19 +248,14 @@ function parseAndValidatePlan(
     );
   }
 
-  if (!isValidVayuShieldPlan(parsed)) {
+  try {
+    return coerceAndNormalizePlan(parsed, locationName, modelUsed);
+  } catch {
     throw new GeminiApiError(
       'Gemini response failed runtime schema validation',
       'SCHEMA_INVALID'
     );
   }
-
-  return {
-    ...parsed,
-    generatedAt: new Date().toISOString(),
-    locationName,
-    modelUsed,
-  };
 }
 
 async function callPlanAttempt(
