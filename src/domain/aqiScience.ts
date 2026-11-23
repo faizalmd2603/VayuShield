@@ -68,9 +68,7 @@ export function getCpcbCategory(aqi: number): CpcbCategory {
  * @param telemetry Observed pollutant readings
  * @returns Detailed CPCB AQI result with dominant pollutant and sub-indices
  */
-export function calculateCpcbAqi(
-  telemetry: Partial<PollutantTelemetry>
-): CpcbAqiResult {
+export function calculateCpcbAqi(telemetry: Partial<PollutantTelemetry>): CpcbAqiResult {
   const subIndices: Record<string, number> = {};
   const pollutants: (keyof PollutantTelemetry)[] = [
     'pm25',

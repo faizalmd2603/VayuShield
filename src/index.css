@@ -1,19 +1,19 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
   :root {
     color-scheme: light dark;
-    --studio-neon: #00FFC2;
+    --studio-neon: #00ffc2;
   }
 
   body {
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
   ::selection {
-    background-color: #00FFC2;
+    background-color: #00ffc2;
     color: #000000;
   }
 }

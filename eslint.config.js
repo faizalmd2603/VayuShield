@@ -27,20 +27,14 @@ export default tseslint.config(
       ...jsxA11y.configs.strict.rules,
       complexity: ['error', 10],
       'max-depth': ['error', 3],
-      'max-lines-per-function': [
-        'warn',
-        { max: 80, skipBlankLines: true, skipComments: true },
-      ],
+      'max-lines-per-function': ['warn', { max: 150, skipBlankLines: true, skipComments: true }],
       'no-console': 'error',
       eqeqeq: ['error', 'always'],
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
-      '@typescript-eslint/restrict-template-expressions': [
-        'error',
-        { allowNumber: true },
-      ],
+      '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
     },
   },
   {

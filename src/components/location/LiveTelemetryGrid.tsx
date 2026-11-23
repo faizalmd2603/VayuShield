@@ -12,7 +12,9 @@ const GasBadges: React.FC<{ readonly current: PollutantTelemetry }> = ({ current
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
       <div className="p-3.5 rounded-xl bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 flex justify-between items-center">
         <span className="text-neutral-500">NO₂</span>
-        <span className="font-bold text-neutral-900 dark:text-white">{current.nitrogenDioxide} µg/m³</span>
+        <span className="font-bold text-neutral-900 dark:text-white">
+          {current.nitrogenDioxide} µg/m³
+        </span>
       </div>
       <div className="p-3.5 rounded-xl bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 flex justify-between items-center">
         <span className="text-neutral-500">O₃</span>
@@ -20,11 +22,15 @@ const GasBadges: React.FC<{ readonly current: PollutantTelemetry }> = ({ current
       </div>
       <div className="p-3.5 rounded-xl bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 flex justify-between items-center">
         <span className="text-neutral-500">SO₂</span>
-        <span className="font-bold text-neutral-900 dark:text-white">{current.sulphurDioxide} µg/m³</span>
+        <span className="font-bold text-neutral-900 dark:text-white">
+          {current.sulphurDioxide} µg/m³
+        </span>
       </div>
       <div className="p-3.5 rounded-xl bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 flex justify-between items-center">
         <span className="text-neutral-500">CO</span>
-        <span className="font-bold text-neutral-900 dark:text-white">{current.carbonMonoxide} mg/m³</span>
+        <span className="font-bold text-neutral-900 dark:text-white">
+          {current.carbonMonoxide} mg/m³
+        </span>
       </div>
     </div>
   );
@@ -37,11 +43,15 @@ const AqiPrimaryCard: React.FC<{
 }> = ({ aqi, category, dominant }) => (
   <div className="p-5 rounded-2xl bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 shadow-sm hover:border-[#00FFC2]/50 transition-colors backdrop-blur-md">
     <div className="flex items-center justify-between">
-      <span className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest">Indian CPCB AQI</span>
+      <span className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest">
+        Indian CPCB AQI
+      </span>
       <ShieldIcon className="w-4 h-4 text-[#00FFC2]" />
     </div>
     <div className="mt-3 flex items-baseline gap-2">
-      <span className="text-4xl font-extrabold font-mono text-neutral-950 dark:text-white">{aqi}</span>
+      <span className="text-4xl font-extrabold font-mono text-neutral-950 dark:text-white">
+        {aqi}
+      </span>
       <span className="text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-neutral-700">
         {category}
       </span>
@@ -58,11 +68,15 @@ const AqiSecondaryCard: React.FC<{
 }> = ({ usAqi, europeanAqi }) => (
   <div className="p-5 rounded-2xl bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 shadow-sm hover:border-[#00FFC2]/50 transition-colors backdrop-blur-md">
     <div className="flex items-center justify-between">
-      <span className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest">US EPA AQI</span>
+      <span className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest">
+        US EPA AQI
+      </span>
       <AlertIcon className="w-4 h-4 text-amber-400" />
     </div>
     <div className="mt-3 flex items-baseline gap-2">
-      <span className="text-4xl font-extrabold font-mono text-neutral-950 dark:text-white">{usAqi}</span>
+      <span className="text-4xl font-extrabold font-mono text-neutral-950 dark:text-white">
+        {usAqi}
+      </span>
       <span className="text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-neutral-700">
         {getUsAqiCategory(usAqi)}
       </span>
@@ -79,11 +93,15 @@ const Pm25Card: React.FC<{
 }> = ({ pm25, pm10 }) => (
   <div className="p-5 rounded-2xl bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 shadow-sm hover:border-[#00FFC2]/50 transition-colors backdrop-blur-md">
     <div className="flex items-center justify-between">
-      <span className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest">PM2.5 Fine Smog</span>
+      <span className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest">
+        PM2.5 Fine Smog
+      </span>
       <span className="text-[10px] font-mono text-neutral-400">µg/m³</span>
     </div>
     <div className="mt-3 flex items-baseline gap-2">
-      <span className="text-4xl font-extrabold font-mono text-neutral-950 dark:text-white">{pm25}</span>
+      <span className="text-4xl font-extrabold font-mono text-neutral-950 dark:text-white">
+        {pm25}
+      </span>
       <span className="text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-500 border border-rose-500/30">
         {pm25 > 15 ? `${Math.round(pm25 / 15)}x WHO Limit` : 'WHO Safe'}
       </span>
@@ -101,7 +119,9 @@ const DispersionCard: React.FC<{
 }> = ({ boundaryLayerHeight, windSpeed, temperature }) => (
   <div className="p-5 rounded-2xl bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 shadow-sm hover:border-[#00FFC2]/50 transition-colors backdrop-blur-md">
     <div className="flex items-center justify-between">
-      <span className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest">Dispersion Ceiling</span>
+      <span className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest">
+        Dispersion Ceiling
+      </span>
       <WindIcon className="w-4 h-4 text-[#00FFC2]" />
     </div>
     <div className="mt-3 flex items-baseline gap-2">
@@ -111,7 +131,8 @@ const DispersionCard: React.FC<{
       <span className="text-xs font-mono text-neutral-400">meters</span>
     </div>
     <p className="mt-2 text-xs text-neutral-500 font-mono">
-      Wind: <strong className="text-neutral-900 dark:text-white">{windSpeed} km/h</strong> • Temp: <strong className="text-neutral-900 dark:text-white">{temperature}°C</strong>
+      Wind: <strong className="text-neutral-900 dark:text-white">{windSpeed} km/h</strong> • Temp:{' '}
+      <strong className="text-neutral-900 dark:text-white">{temperature}°C</strong>
     </p>
   </div>
 );
@@ -132,8 +153,15 @@ export const LiveTelemetryGrid: React.FC<Props> = ({ telemetry }) => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <AqiPrimaryCard aqi={cpcbAqi.aqi} category={cpcbAqi.category} dominant={cpcbAqi.dominantPollutant} />
-        <AqiSecondaryCard usAqi={currentPollutants.usAqi} europeanAqi={currentPollutants.europeanAqi} />
+        <AqiPrimaryCard
+          aqi={cpcbAqi.aqi}
+          category={cpcbAqi.category}
+          dominant={cpcbAqi.dominantPollutant}
+        />
+        <AqiSecondaryCard
+          usAqi={currentPollutants.usAqi}
+          europeanAqi={currentPollutants.europeanAqi}
+        />
         <Pm25Card pm25={currentPollutants.pm25} pm10={currentPollutants.pm10} />
         <DispersionCard
           boundaryLayerHeight={smogTrap.boundaryLayerHeight}

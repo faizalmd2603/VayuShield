@@ -60,7 +60,4 @@ export interface ChatMessage {
 }
 
 export type GeminiModelName =
-  | 'gemini-3.5-flash-lite'
-  | 'gemini-3.5-flash'
-  | 'gemini-3.8-flash'
-  | 'gemini-4-hydrogen';
+  'gemini-3.5-flash-lite' | 'gemini-3.5-flash' | 'gemini-3.8-flash' | 'gemini-4-hydrogen';

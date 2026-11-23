@@ -47,7 +47,10 @@ export const SafeMarkdown: React.FC<Props> = ({ content, className = '' }) => {
 
         if (trimmed.startsWith('### ')) {
           return (
-            <h4 key={idx} className="text-base font-semibold text-slate-800 dark:text-slate-100 pt-1">
+            <h4
+              key={idx}
+              className="text-base font-semibold text-slate-800 dark:text-slate-100 pt-1"
+            >
               {trimmed.slice(4)}
             </h4>
           );

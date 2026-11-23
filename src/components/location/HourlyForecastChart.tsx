@@ -6,7 +6,9 @@ interface Props {
   readonly hourly: readonly HourlyAirQualityPoint[];
 }
 
-const ForecastTable: React.FC<{ readonly points: readonly HourlyAirQualityPoint[] }> = ({ points }) => (
+const ForecastTable: React.FC<{ readonly points: readonly HourlyAirQualityPoint[] }> = ({
+  points,
+}) => (
   <div className="max-h-60 overflow-y-auto">
     <table className="w-full text-xs text-left text-neutral-700 dark:text-neutral-300 font-mono">
       <caption className="sr-only">Detailed hourly forecast metrics</caption>
@@ -58,17 +60,24 @@ export const HourlyForecastChart: React.FC<Props> = ({ hourly }) => {
     .join(' ');
 
   return (
-    <section aria-label="Hourly Air Quality Forecast" className="p-6 rounded-2xl bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-4 backdrop-blur-md hover:border-[#00FFC2]/50 transition-colors">
+    <section
+      aria-label="Hourly Air Quality Forecast"
+      className="p-6 rounded-2xl bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-4 backdrop-blur-md hover:border-[#00FFC2]/50 transition-colors"
+    >
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-[11px] font-mono uppercase tracking-[0.2em] text-neutral-400">
             [ 02 // 24-HOUR PM2.5 DISPERSION TRAJECTORY ]
           </h3>
-          <p className="text-xs text-neutral-500 font-mono mt-0.5">HOURLY PARTICULATE DENSITY (µg/m³)</p>
+          <p className="text-xs text-neutral-500 font-mono mt-0.5">
+            HOURLY PARTICULATE DENSITY (µg/m³)
+          </p>
         </div>
         <button
           type="button"
-          onClick={() => { setShowTable((prev) => !prev); }}
+          onClick={() => {
+            setShowTable((prev) => !prev);
+          }}
           className="text-xs font-mono tracking-wider uppercase px-3 py-1.5 rounded-full border border-neutral-300 dark:border-neutral-700 hover:border-[#00FFC2] text-neutral-700 dark:text-neutral-300 transition-colors cursor-pointer"
           aria-expanded={showTable}
         >
@@ -78,18 +87,50 @@ export const HourlyForecastChart: React.FC<Props> = ({ hourly }) => {
 
       {!showTable ? (
         <div className="w-full overflow-x-auto">
-          <svg viewBox={`0 0 ${svgW} ${svgH}`} role="img" aria-label="24-hour PM2.5 trend graph" className="w-full h-44 text-[#00FFC2]">
+          <svg
+            viewBox={`0 0 ${svgW} ${svgH}`}
+            role="img"
+            aria-label="24-hour PM2.5 trend graph"
+            className="w-full h-44 text-[#00FFC2]"
+          >
             <title>24-Hour PM2.5 Hourly Trend</title>
             <desc>A continuous line graph plotting live hourly PM2.5 concentration.</desc>
-            <path d={pathD} fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d={pathD}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
             {points.map((p, idx) => {
               if (idx % 3 !== 0 && idx !== points.length - 1) return null;
               const pt = getPt(idx, p.pm25);
               return (
                 <g key={p.time}>
                   <circle cx={pt.x} cy={pt.y} r={4} fill="#00FFC2" />
-                  <text x={pt.x} y={pt.y - 8} textAnchor="middle" fontSize={11} fill="currentColor" fontWeight="bold" fontFamily="monospace">{p.pm25}</text>
-                  <text x={pt.x} y={svgH - 8} textAnchor="middle" fontSize={9} fill="currentColor" fillOpacity={0.6} fontFamily="monospace">{formatTimeHour(p.time)}</text>
+                  <text
+                    x={pt.x}
+                    y={pt.y - 8}
+                    textAnchor="middle"
+                    fontSize={11}
+                    fill="currentColor"
+                    fontWeight="bold"
+                    fontFamily="monospace"
+                  >
+                    {p.pm25}
+                  </text>
+                  <text
+                    x={pt.x}
+                    y={svgH - 8}
+                    textAnchor="middle"
+                    fontSize={9}
+                    fill="currentColor"
+                    fillOpacity={0.6}
+                    fontFamily="monospace"
+                  >
+                    {formatTimeHour(p.time)}
+                  </text>
                 </g>
               );
             })}

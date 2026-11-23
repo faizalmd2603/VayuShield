@@ -94,7 +94,8 @@ export function useLocationSearch(
       onSelectLocation?.(loc);
       return loc;
     } catch (err: unknown) {
-      const msg = err instanceof LocationError ? err.message : 'Unable to access your current GPS location';
+      const msg =
+        err instanceof LocationError ? err.message : 'Unable to access your current GPS location';
       setError(msg);
       return null;
     } finally {

@@ -54,9 +54,7 @@ function createWeatherPoint(
 /**
  * Parses hourly weather arrays into a time-keyed map.
  */
-function parseHourlyMap(
-  hourly?: RawWeatherHourly
-): ReadonlyMap<string, ParsedWeatherPoint> {
+function parseHourlyMap(hourly?: RawWeatherHourly): ReadonlyMap<string, ParsedWeatherPoint> {
   const result = new Map<string, ParsedWeatherPoint>();
   const times = hourly?.time;
   if (!times) return result;
@@ -69,10 +67,7 @@ function parseHourlyMap(
   for (let i = 0; i < times.length; i++) {
     const t = times[i];
     if (!t) continue;
-    result.set(
-      t,
-      createWeatherPoint(temps?.[i], hums?.[i], winds?.[i], blhs?.[i])
-    );
+    result.set(t, createWeatherPoint(temps?.[i], hums?.[i], winds?.[i], blhs?.[i]));
   }
 
   return result;

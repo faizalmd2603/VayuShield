@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { calculateRoomMetrics, estimateIndoorPm25 } from '../domain/indoorPhysics';
-import { calculateCommuteSavings, calculateCheckedRoutinesImpact } from '../domain/impactCalculator';
+import {
+  calculateCommuteSavings,
+  calculateCheckedRoutinesImpact,
+} from '../domain/impactCalculator';
 import type { RoutineStep } from '../types/gemini';
 
 describe('Indoor Physics & Aero Metrics', () => {

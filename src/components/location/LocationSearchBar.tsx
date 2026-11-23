@@ -17,12 +17,15 @@ const CandidatesList: React.FC<{
       <li key={`${loc.name}-${loc.latitude}-${loc.longitude}`}>
         <button
           type="button"
-          onClick={() => { onSelect(loc); }}
+          onClick={() => {
+            onSelect(loc);
+          }}
           className="w-full text-left px-5 py-3 text-sm hover:bg-neutral-50 dark:hover:bg-neutral-800/60 flex items-center justify-between text-neutral-800 dark:text-neutral-200 cursor-pointer transition-colors"
         >
           <span className="font-semibold">{loc.name}</span>
           <span className="text-xs font-mono text-neutral-400">
-            {loc.admin1 ? `${loc.admin1}, ` : ''}{loc.country}
+            {loc.admin1 ? `${loc.admin1}, ` : ''}
+            {loc.country}
           </span>
         </button>
       </li>
@@ -33,10 +36,7 @@ const CandidatesList: React.FC<{
 /**
  * Debounced geocoding search input and GPS positioning bar.
  */
-export const LocationSearchBar: React.FC<Props> = ({
-  onSelectLocation,
-  selectedLocation,
-}) => {
+export const LocationSearchBar: React.FC<Props> = ({ onSelectLocation, selectedLocation }) => {
   const {
     query,
     setQuery,
@@ -62,7 +62,9 @@ export const LocationSearchBar: React.FC<Props> = ({
           <input
             type="text"
             value={query}
-            onChange={(e) => { setQuery(e.target.value); }}
+            onChange={(e) => {
+              setQuery(e.target.value);
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
@@ -82,12 +84,16 @@ export const LocationSearchBar: React.FC<Props> = ({
 
         <button
           type="button"
-          onClick={() => { void fetchGpsLocation(); }}
+          onClick={() => {
+            void fetchGpsLocation();
+          }}
           disabled={isGpsLocating}
           className="flex items-center gap-1.5 px-4 py-3 rounded-full bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-900 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-mono tracking-wider uppercase border border-neutral-300 dark:border-neutral-800 hover:border-[#00FFC2] transition-colors cursor-pointer shrink-0"
           aria-label="Use browser GPS location"
         >
-          <GpsIcon className={`w-3.5 h-3.5 text-[#00FFC2] ${isGpsLocating ? 'animate-spin' : ''}`} />
+          <GpsIcon
+            className={`w-3.5 h-3.5 text-[#00FFC2] ${isGpsLocating ? 'animate-spin' : ''}`}
+          />
           <span className="hidden sm:inline">Use GPS</span>
         </button>
       </div>

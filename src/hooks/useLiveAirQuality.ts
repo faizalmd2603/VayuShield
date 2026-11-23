@@ -39,9 +39,7 @@ export function useLiveAirQuality(
     } catch (err: unknown) {
       if (controller.signal.aborted) return;
       const msg =
-        err instanceof NetworkError
-          ? err.message
-          : 'Failed to fetch live air quality telemetry';
+        err instanceof NetworkError ? err.message : 'Failed to fetch live air quality telemetry';
       setError(msg);
     } finally {
       setIsLoading(false);

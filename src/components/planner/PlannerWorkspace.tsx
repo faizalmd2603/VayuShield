@@ -46,13 +46,45 @@ const ActivePanel: React.FC<{
   readonly onUpdateProfile: (p: Partial<LifestyleProfile>) => void;
   readonly onResetProfile: () => void;
 }> = (props) => {
-  const { tab, plan, telemetry, profile, checkedStepIds, onToggleStep, apiKey, selectedModel, onUpdateProfile, onResetProfile } = props;
-  if (tab === 'routines') return <RoutineTimelineView routines={plan.routines} checkedStepIds={checkedStepIds} onToggleStep={onToggleStep} />;
+  const {
+    tab,
+    plan,
+    telemetry,
+    profile,
+    checkedStepIds,
+    onToggleStep,
+    apiKey,
+    selectedModel,
+    onUpdateProfile,
+    onResetProfile,
+  } = props;
+  if (tab === 'routines')
+    return (
+      <RoutineTimelineView
+        routines={plan.routines}
+        checkedStepIds={checkedStepIds}
+        onToggleStep={onToggleStep}
+      />
+    );
   if (tab === 'hacks') return <IndoorHacksView hacks={plan.indoorHacks} />;
   if (tab === 'community') return <CommunityPlaybookView playbook={plan.communityPlaybook} />;
   if (tab === 'physics') return <IndoorPhysicsLab telemetry={telemetry} profile={profile} />;
-  if (tab === 'copilot') return <SmogCopilotChat apiKey={apiKey} telemetry={telemetry} profile={profile} selectedModel={selectedModel} />;
-  return <LifestyleProfileForm profile={profile} onUpdateProfile={onUpdateProfile} onReset={onResetProfile} />;
+  if (tab === 'copilot')
+    return (
+      <SmogCopilotChat
+        apiKey={apiKey}
+        telemetry={telemetry}
+        profile={profile}
+        selectedModel={selectedModel}
+      />
+    );
+  return (
+    <LifestyleProfileForm
+      profile={profile}
+      onUpdateProfile={onUpdateProfile}
+      onReset={onResetProfile}
+    />
+  );
 };
 
 interface HeaderControlProps {
@@ -80,13 +112,17 @@ const PlannerHeaderControls: React.FC<HeaderControlProps> = ({
           [ 03 // GENAI ACTION PLANNER ]
         </h2>
       </div>
-      <p className="text-xs text-neutral-500 font-mono mt-0.5">GROUNDED IN LIVE TELEMETRY &amp; HOUSEHOLD PROFILE</p>
+      <p className="text-xs text-neutral-500 font-mono mt-0.5">
+        GROUNDED IN LIVE TELEMETRY &amp; HOUSEHOLD PROFILE
+      </p>
     </div>
 
     <div className="flex items-center gap-2">
       <select
         value={selectedModel}
-        onChange={(e) => { onSelectModel(e.target.value as GeminiModelName); }}
+        onChange={(e) => {
+          onSelectModel(e.target.value as GeminiModelName);
+        }}
         className="px-3 py-2 text-xs font-mono rounded-full border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 cursor-pointer"
         aria-label="Select Google Gemini Model"
       >
@@ -103,7 +139,13 @@ const PlannerHeaderControls: React.FC<HeaderControlProps> = ({
         className="flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-[#00FFC2] hover:bg-[#00e6ae] text-black text-xs font-mono font-bold tracking-wider uppercase shadow-md shadow-[#00FFC2]/20 transition-all cursor-pointer disabled:opacity-50"
       >
         <SparklesIcon className="w-3.5 h-3.5 text-black" />
-        <span>{isGenerating ? 'Generating...' : hasPlan ? 'Regenerate Plan' : 'Generate Smog Defense Plan'}</span>
+        <span>
+          {isGenerating
+            ? 'Generating...'
+            : hasPlan
+              ? 'Regenerate Plan'
+              : 'Generate Smog Defense Plan'}
+        </span>
       </button>
 
       {hasPlan && (
@@ -127,11 +169,23 @@ const PlannerHeaderControls: React.FC<HeaderControlProps> = ({
 export const PlannerWorkspace: React.FC<Props> = (props) => {
   const [activeTab, setActiveTab] = useState<TabId>('routines');
   const {
-    telemetry, profile, onUpdateProfile, onResetProfile,
-    apiKey, hasValidApiKey, onRequestApiKey,
-    selectedModel, onSelectModel,
-    plan, isGenerating, genError, onGeneratePlan,
-    checkedStepIds, onToggleStep, aggregateImpact, onExport,
+    telemetry,
+    profile,
+    onUpdateProfile,
+    onResetProfile,
+    apiKey,
+    hasValidApiKey,
+    onRequestApiKey,
+    selectedModel,
+    onSelectModel,
+    plan,
+    isGenerating,
+    genError,
+    onGeneratePlan,
+    checkedStepIds,
+    onToggleStep,
+    aggregateImpact,
+    onExport,
   } = props;
 
   const handleGenerateClick = (): void => {
@@ -154,7 +208,10 @@ export const PlannerWorkspace: React.FC<Props> = (props) => {
       />
 
       {genError && (
-        <div role="alert" className="p-3.5 rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/30 text-xs font-mono">
+        <div
+          role="alert"
+          className="p-3.5 rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/30 text-xs font-mono"
+        >
           {genError}
         </div>
       )}
@@ -167,10 +224,16 @@ export const PlannerWorkspace: React.FC<Props> = (props) => {
           <AppTabs activeTab={activeTab} onChangeTab={setActiveTab} />
           <div role="tabpanel" id={`panel-${activeTab}`} aria-labelledby={`tab-${activeTab}`}>
             <ActivePanel
-              tab={activeTab} plan={plan} telemetry={telemetry} profile={profile}
-              checkedStepIds={checkedStepIds} onToggleStep={onToggleStep}
-              apiKey={apiKey} selectedModel={selectedModel}
-              onUpdateProfile={onUpdateProfile} onResetProfile={onResetProfile}
+              tab={activeTab}
+              plan={plan}
+              telemetry={telemetry}
+              profile={profile}
+              checkedStepIds={checkedStepIds}
+              onToggleStep={onToggleStep}
+              apiKey={apiKey}
+              selectedModel={selectedModel}
+              onUpdateProfile={onUpdateProfile}
+              onResetProfile={onResetProfile}
             />
           </div>
         </div>

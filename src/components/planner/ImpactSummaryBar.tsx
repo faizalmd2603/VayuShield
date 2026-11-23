@@ -85,7 +85,10 @@ export const ImpactSummaryBar: React.FC<Props> = ({ impact }) => {
 
       <div className="flex items-center gap-2 text-xs font-mono text-neutral-400 pt-1">
         <CheckIcon className="w-3.5 h-3.5 text-[#00FFC2] shrink-0" />
-        <span>Every routine toggled dynamically recalculates your real-world household and community impact.</span>
+        <span>
+          Every routine toggled dynamically recalculates your real-world household and community
+          impact.
+        </span>
       </div>
     </section>
   );

@@ -71,12 +71,10 @@ export function calculateCheckedRoutinesImpact(
   }
 
   // Include weekly commute savings contribution
-  const commute = calculateCommuteSavings(
-    profile.commuteMode,
-    profile.dailyCommuteKm
-  );
+  const commute = calculateCommuteSavings(profile.commuteMode, profile.dailyCommuteKm);
   const totalWeeklyCo2e = Math.round((co2eAvoidedSum * 7 + commute.weeklyCo2eSavedKg) * 10) / 10;
-  const communityPm = Math.round((commute.weeklyPm25SavedGrams + pm25ReductionSum * 0.05) * 10) / 10;
+  const communityPm =
+    Math.round((commute.weeklyPm25SavedGrams + pm25ReductionSum * 0.05) * 10) / 10;
 
   // 1 tree absorbs ~21 kg CO2/year (~0.404 kg/week)
   const treesEquiv = Math.round((totalWeeklyCo2e / 0.404) * 10) / 10;

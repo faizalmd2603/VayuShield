@@ -120,9 +120,7 @@ function mergeHourlyPoints(
     const t = times[i];
     if (!t) continue;
     const w = weatherMap.get(t);
-    points.push(
-      buildHourlyPoint(t, usAqis?.[i], pm25s?.[i], pm10s?.[i], no2s?.[i], o3s?.[i], w)
-    );
+    points.push(buildHourlyPoint(t, usAqis?.[i], pm25s?.[i], pm10s?.[i], no2s?.[i], o3s?.[i], w));
   }
 
   return points;

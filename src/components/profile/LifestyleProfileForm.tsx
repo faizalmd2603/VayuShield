@@ -29,7 +29,11 @@ const SensitivityChips: React.FC<{
         const active = activeList.includes(opt.id);
         return (
           <button
-            key={opt.id} type="button" onClick={() => { onToggle(opt.id); }}
+            key={opt.id}
+            type="button"
+            onClick={() => {
+              onToggle(opt.id);
+            }}
             className={`px-3 py-1.5 rounded-full text-xs font-mono transition-all cursor-pointer ${
               active
                 ? 'bg-[#00FFC2]/15 text-[#00FFC2] border border-[#00FFC2]/50 font-bold'
@@ -37,7 +41,8 @@ const SensitivityChips: React.FC<{
             }`}
             aria-pressed={active}
           >
-            {active ? '✓ ' : '+ '}{opt.label}
+            {active ? '✓ ' : '+ '}
+            {opt.label}
           </button>
         );
       })}
@@ -51,10 +56,18 @@ const ProfileDropdowns: React.FC<{
 }> = ({ profile, onUpdate }) => (
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 text-sm">
     <div className="space-y-1.5">
-      <label htmlFor="community-role" className="block text-xs font-semibold text-slate-600 dark:text-slate-400">Community Role</label>
+      <label
+        htmlFor="community-role"
+        className="block text-xs font-semibold text-slate-600 dark:text-slate-400"
+      >
+        Community Role
+      </label>
       <select
-        id="community-role" value={profile.communityRole}
-        onChange={(e) => { onUpdate({ communityRole: e.target.value as LifestyleProfile['communityRole'] }); }}
+        id="community-role"
+        value={profile.communityRole}
+        onChange={(e) => {
+          onUpdate({ communityRole: e.target.value as LifestyleProfile['communityRole'] });
+        }}
         className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs"
       >
         <option value="apartment_rwa_member">Apartment Association (RWA) Member</option>
@@ -66,10 +79,18 @@ const ProfileDropdowns: React.FC<{
     </div>
 
     <div className="space-y-1.5">
-      <label htmlFor="vent-type" className="block text-xs font-semibold text-slate-600 dark:text-slate-400">Ventilation</label>
+      <label
+        htmlFor="vent-type"
+        className="block text-xs font-semibold text-slate-600 dark:text-slate-400"
+      >
+        Ventilation
+      </label>
       <select
-        id="vent-type" value={profile.ventilationType}
-        onChange={(e) => { onUpdate({ ventilationType: e.target.value as LifestyleProfile['ventilationType'] }); }}
+        id="vent-type"
+        value={profile.ventilationType}
+        onChange={(e) => {
+          onUpdate({ ventilationType: e.target.value as LifestyleProfile['ventilationType'] });
+        }}
         className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs"
       >
         <option value="sealed_hvac">Sealed Double-Glazed / HVAC</option>
@@ -80,10 +101,18 @@ const ProfileDropdowns: React.FC<{
     </div>
 
     <div className="space-y-1.5">
-      <label htmlFor="purifier-status" className="block text-xs font-semibold text-slate-600 dark:text-slate-400">Air Purifier</label>
+      <label
+        htmlFor="purifier-status"
+        className="block text-xs font-semibold text-slate-600 dark:text-slate-400"
+      >
+        Air Purifier
+      </label>
       <select
-        id="purifier-status" value={profile.purifierStatus}
-        onChange={(e) => { onUpdate({ purifierStatus: e.target.value as LifestyleProfile['purifierStatus'] }); }}
+        id="purifier-status"
+        value={profile.purifierStatus}
+        onChange={(e) => {
+          onUpdate({ purifierStatus: e.target.value as LifestyleProfile['purifierStatus'] });
+        }}
         className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs"
       >
         <option value="hepa_purifier_active">Active HEPA Purifier</option>
@@ -94,10 +123,18 @@ const ProfileDropdowns: React.FC<{
     </div>
 
     <div className="space-y-1.5">
-      <label htmlFor="commute-mode" className="block text-xs font-semibold text-slate-600 dark:text-slate-400">Daily Commute ({profile.dailyCommuteKm} km)</label>
+      <label
+        htmlFor="commute-mode"
+        className="block text-xs font-semibold text-slate-600 dark:text-slate-400"
+      >
+        Daily Commute ({profile.dailyCommuteKm} km)
+      </label>
       <select
-        id="commute-mode" value={profile.commuteMode}
-        onChange={(e) => { onUpdate({ commuteMode: e.target.value as LifestyleProfile['commuteMode'] }); }}
+        id="commute-mode"
+        value={profile.commuteMode}
+        onChange={(e) => {
+          onUpdate({ commuteMode: e.target.value as LifestyleProfile['commuteMode'] });
+        }}
         className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs"
       >
         <option value="metro_subway">Rapid Metro / Rail</option>
@@ -110,10 +147,18 @@ const ProfileDropdowns: React.FC<{
     </div>
 
     <div className="space-y-1.5">
-      <label htmlFor="cooking-fuel" className="block text-xs font-semibold text-slate-600 dark:text-slate-400">Cooking Setup</label>
+      <label
+        htmlFor="cooking-fuel"
+        className="block text-xs font-semibold text-slate-600 dark:text-slate-400"
+      >
+        Cooking Setup
+      </label>
       <select
-        id="cooking-fuel" value={profile.cookingFuel}
-        onChange={(e) => { onUpdate({ cookingFuel: e.target.value as LifestyleProfile['cookingFuel'] }); }}
+        id="cooking-fuel"
+        value={profile.cookingFuel}
+        onChange={(e) => {
+          onUpdate({ cookingFuel: e.target.value as LifestyleProfile['cookingFuel'] });
+        }}
         className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs"
       >
         <option value="induction_electric">Induction Electric</option>
@@ -128,11 +173,7 @@ const ProfileDropdowns: React.FC<{
 /**
  * Interactive lifestyle & community profile configuration form.
  */
-export const LifestyleProfileForm: React.FC<Props> = ({
-  profile,
-  onUpdateProfile,
-  onReset,
-}) => {
+export const LifestyleProfileForm: React.FC<Props> = ({ profile, onUpdateProfile, onReset }) => {
   const toggleSensitivity = (id: HealthSensitivity): void => {
     const set = new Set(profile.healthSensitivities);
     if (set.has(id)) set.delete(id);
@@ -141,13 +182,26 @@ export const LifestyleProfileForm: React.FC<Props> = ({
   };
 
   return (
-    <section aria-label="Lifestyle & Community Profile" className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+    <section
+      aria-label="Lifestyle & Community Profile"
+      className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6"
+    >
       <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
         <div>
-          <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">Family & Community Profile</h2>
-          <p className="text-xs text-slate-500">Tailors Gemini routine architect and indoor aero math</p>
+          <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
+            Family & Community Profile
+          </h2>
+          <p className="text-xs text-slate-500">
+            Tailors Gemini routine architect and indoor aero math
+          </p>
         </div>
-        <button type="button" onClick={() => { onReset(); }} className="text-xs text-slate-500 hover:text-slate-700 underline cursor-pointer">
+        <button
+          type="button"
+          onClick={() => {
+            onReset();
+          }}
+          className="text-xs text-slate-500 hover:text-slate-700 underline cursor-pointer"
+        >
           Reset Defaults
         </button>
       </div>

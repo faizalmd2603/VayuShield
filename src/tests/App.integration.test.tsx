@@ -223,7 +223,9 @@ describe('VayuShield End-to-End Application Integration', () => {
     await userEvent.click(generateBtn);
 
     // Verify generated plan
-    expect(await screen.findByText('Operate HEPA filtration inside sealed living areas')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Operate HEPA filtration inside sealed living areas')
+    ).toBeInTheDocument();
     expect(screen.getByText('Direct Choice Impact Scorecard')).toBeInTheDocument();
 
     // Switch tabs to Indoor Hacks
@@ -235,7 +237,9 @@ describe('VayuShield End-to-End Application Integration', () => {
     const communityTab = screen.getByRole('tab', { name: 'Community Playbook' });
     await userEvent.click(communityTab);
     expect(await screen.findByText('Apartment RWA Advisory')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Copy community advisory notice/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Copy community advisory notice/i })
+    ).toBeInTheDocument();
 
     // Switch tabs to Aero Physics Lab
     const physicsTab = screen.getByRole('tab', { name: 'Aero Physics Lab' });
@@ -247,6 +251,10 @@ describe('VayuShield End-to-End Application Integration', () => {
     await userEvent.click(routinesTab);
     const routineCheckbox = screen.getByRole('checkbox', { name: /Toggle action:/i });
     await userEvent.click(routineCheckbox); // Uncheck
-    expect(within(screen.getByLabelText('Quantified Choice Impact Metrics')).getByText('0 of 1 Actions Adopted')).toBeInTheDocument();
+    expect(
+      within(screen.getByLabelText('Quantified Choice Impact Metrics')).getByText(
+        '0 of 1 Actions Adopted'
+      )
+    ).toBeInTheDocument();
   });
 });

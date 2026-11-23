@@ -37,10 +37,7 @@ function resolveErrorMessage(err: unknown): string {
 /**
  * Hook for streaming conversational interaction with VayuShield Smog Copilot.
  */
-export function useGeminiChat(
-  apiKey: string,
-  model?: GeminiModelName
-): UseGeminiChatResult {
+export function useGeminiChat(apiKey: string, model?: GeminiModelName): UseGeminiChatResult {
   const [messages, setMessages] = useState<readonly ChatMessage[]>([]);
   const [streamingChunk, setStreamingChunk] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);

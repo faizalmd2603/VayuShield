@@ -4,18 +4,10 @@
  */
 
 export type GeminiErrorCode =
-  | 'INVALID_KEY'
-  | 'RATE_LIMITED'
-  | 'TIMEOUT'
-  | 'SCHEMA_INVALID'
-  | 'NETWORK_OFFLINE'
-  | 'ABORTED';
+  'INVALID_KEY' | 'RATE_LIMITED' | 'TIMEOUT' | 'SCHEMA_INVALID' | 'NETWORK_OFFLINE' | 'ABORTED';
 
 export type LocationErrorCode =
-  | 'PERMISSION_DENIED'
-  | 'POSITION_UNAVAILABLE'
-  | 'TIMEOUT'
-  | 'GEOCODING_FAILED';
+  'PERMISSION_DENIED' | 'POSITION_UNAVAILABLE' | 'TIMEOUT' | 'GEOCODING_FAILED';
 
 /**
  * Base Application Error.
@@ -65,11 +57,7 @@ export class LocationError extends AppError {
 export class GeminiApiError extends AppError {
   public readonly geminiCode: GeminiErrorCode;
 
-  public constructor(
-    message: string,
-    geminiCode: GeminiErrorCode,
-    recoverable = true
-  ) {
+  public constructor(message: string, geminiCode: GeminiErrorCode, recoverable = true) {
     super(message, `GEMINI_${geminiCode}`, recoverable);
     this.name = 'GeminiApiError';
     this.geminiCode = geminiCode;

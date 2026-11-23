@@ -37,7 +37,10 @@ export function getGoogleSatelliteUrl(lat: number, lon: number): string {
   return `https://www.google.com/maps/@${lat},${lon},13z/data=!3m1!1e3`;
 }
 
-function parseSerpApiPlace(data: RawSerpApiResponse, fallbackTitle: string): SerpApiMapResult | null {
+function parseSerpApiPlace(
+  data: RawSerpApiResponse,
+  fallbackTitle: string
+): SerpApiMapResult | null {
   const place = data.place_results;
   if (!place) return null;
   const coords = place.gps_coordinates;

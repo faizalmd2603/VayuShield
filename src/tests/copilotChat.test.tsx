@@ -25,8 +25,22 @@ const sampleTelemetry: CombinedAirTelemetry = {
   hourlyForecast: [],
   cpcbAqi: { aqi: 110, category: 'Moderate', dominantPollutant: 'PM25', subIndices: { pm25: 110 } },
   grapStage: 'Stage I (Poor)',
-  smogTrap: { riskLevel: 'Moderate', boundaryLayerHeight: 450, windSpeed: 8, temperature: 27, explanation: 'Coastal breeze' },
-  safestVentilation: { startHour: '12:00', endHour: '16:00', averagePm25: 35, boundaryLayerHeight: 650, windSpeed: 12, isSafestWindow: true, rationale: 'Afternoon sea breeze' },
+  smogTrap: {
+    riskLevel: 'Moderate',
+    boundaryLayerHeight: 450,
+    windSpeed: 8,
+    temperature: 27,
+    explanation: 'Coastal breeze',
+  },
+  safestVentilation: {
+    startHour: '12:00',
+    endHour: '16:00',
+    averagePm25: 35,
+    boundaryLayerHeight: 650,
+    windSpeed: 12,
+    isSafestWindow: true,
+    rationale: 'Afternoon sea breeze',
+  },
   lastUpdated: '2026-11-23T12:00:00Z',
 };
 
@@ -82,6 +96,8 @@ describe('SmogCopilotChat Component Suite', () => {
     fireEvent.click(firstChip);
 
     // The user message bubble appears immediately
-    expect(screen.getByText(/Can children exercise outdoors in Chennai right now\?/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Can children exercise outdoors in Chennai right now\?/i)
+    ).toBeInTheDocument();
   });
 });

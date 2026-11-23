@@ -45,20 +45,10 @@ export type UsAqiCategory =
   | 'Very Unhealthy'
   | 'Hazardous';
 
-export type CpcbCategory =
-  | 'Good'
-  | 'Satisfactory'
-  | 'Moderate'
-  | 'Poor'
-  | 'Very Poor'
-  | 'Severe';
+export type CpcbCategory = 'Good' | 'Satisfactory' | 'Moderate' | 'Poor' | 'Very Poor' | 'Severe';
 
 export type GrapStage =
-  | 'None'
-  | 'Stage I (Poor)'
-  | 'Stage II (Very Poor)'
-  | 'Stage III (Severe)'
-  | 'Stage IV (Severe+)';
+  'None' | 'Stage I (Poor)' | 'Stage II (Very Poor)' | 'Stage III (Severe)' | 'Stage IV (Severe+)';
 
 export interface CpcbAqiResult {
   readonly aqi: number;

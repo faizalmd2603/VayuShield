@@ -1,14 +1,15 @@
 # VayuShield
+
 ### Autonomous GenAI Urban Air Quality & Winter Smog Assistant for Families & Communities
 
-[![Production Build](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9_Strict-blue.svg)]()
-[![React](https://img.shields.io/badge/React-19.0-61dafb.svg)]()
-[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v4.1-38bdf8.svg)]()
-[![Google Gemini API](https://img.shields.io/badge/Gemini_API-3.5--flash--lite_%7C_3.8--flash-4285F4.svg)]()
-[![Open-Meteo](https://img.shields.io/badge/Telemetry-Open--Meteo_Keyless_CORS-orange.svg)]()
-[![WCAG 2.1 AA](https://img.shields.io/badge/Accessibility-WCAG_2.1_AA_Compliant-success.svg)]()
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)]()
+[![Production Build](https://img.shields.io/badge/build-passing-brightgreen.svg)](<>)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9_Strict-blue.svg)](<>)
+[![React](https://img.shields.io/badge/React-19.0-61dafb.svg)](<>)
+[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v4.1-38bdf8.svg)](<>)
+[![Google Gemini API](https://img.shields.io/badge/Gemini_API-3.5--flash--lite_%7C_3.8--flash-4285F4.svg)](<>)
+[![Open-Meteo](https://img.shields.io/badge/Telemetry-Open--Meteo_Keyless_CORS-orange.svg)](<>)
+[![WCAG 2.1 AA](https://img.shields.io/badge/Accessibility-WCAG_2.1_AA_Compliant-success.svg)](<>)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](<>)
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel_Production-000000.svg?logo=vercel)](https://vayushield-nine.vercel.app)
 
 > 🌐 **Live Web Application:** [https://vayushield-nine.vercel.app](https://vayushield-nine.vercel.app)  
@@ -17,6 +18,7 @@
 ---
 
 ## Table of Contents
+
 1. [Core Innovations & Architecture](#core-innovations--architecture)
 2. [Zero-Mock Data & Anti-Plagiarism Guarantee](#zero-mock-data--anti-plagiarism-guarantee)
 3. [Live Atmospheric Physics & Aerosol Science](#live-atmospheric-physics--aerosol-science)
@@ -91,11 +93,13 @@
 ## Zero-Mock Data & Anti-Plagiarism Guarantee
 
 ### 1. Zero Mock Data in `src/`
+
 - **Zero hardcoded AQI values, fake city names, or simulated AI responses:** The source code contains **no mock arrays, dummy JSON files, or simulated AI delays**.
 - **Cold-Start Integrity:** When opened for the first time without a location or API key, VayuShield renders a clean, educational onboarding state that prompts the user to search their city via live Open-Meteo geocoding or click "Use Current Location" (browser GPS), and optionally provide their Gemini API key via the secure in-app modal.
 - **Test Isolation:** Automated unit and integration tests inside `src/tests/` use Vitest spies (`vi.spyOn(globalThis, "fetch")`) exclusively to verify network boundary resilience, parsers, and error handling deterministically without spamming external APIs in CI.
 
 ### 2. 100% Custom Code & Zero Template Bloat
+
 - **No Component Libraries:** Zero usage of `shadcn/ui`, Material UI, Ant Design, Chakra, or Bootstrap. All modals, forms, tabs, badges, timelines, and inputs are hand-crafted semantic HTML5 styled with modern Tailwind CSS.
 - **No Third-Party Icon Bloat:** No FontAwesome, Lucide, or Heroicons NPM packages. All 18 application icons are bespoke inline SVG components declared in `src/components/icons/Icons.tsx`.
 - **No Charting Overhead:** No Chart.js, Recharts, or D3 dependencies. The 48-hour air quality forecast chart is a pure SVG vector graphic calculated with accessible mathematical coordinate mapping and accompanied by a screen-reader-accessible HTML data table toggle.
@@ -114,11 +118,13 @@
 VayuShield embeds official environmental protection agency standards and peer-reviewed aerosol equations directly in its domain layer.
 
 ### CPCB NAQI & US EPA AQI Formulations
+
 The sub-index for any pollutant $p$ with concentration $C_p$ is calculated using the standard piecewise linear interpolation equation:
 
 $$I_p = \frac{I_{hi} - I_{lo}}{BP_{hi} - BP_{lo}} (C_p - BP_{lo}) + I_{lo}$$
 
 Where:
+
 - $BP_{hi}$ and $BP_{lo}$ are the concentration breakpoint boundaries for the category encompassing $C_p$.
 - $I_{hi}$ and $I_{lo}$ are the corresponding AQI sub-index boundaries.
 
@@ -127,26 +133,31 @@ The overall Composite AQI is governed by the maximum sub-index (dominant polluta
 $$\text{AQI} = \max_{p \in \{\text{PM}_{2.5}, \text{PM}_{10}, \text{NO}_2, \text{SO}_2, \text{CO}, \text{O}_3\}} I_p$$
 
 #### CPCB National Air Quality Index (NAQI) Breakpoints (India Standard):
-| Category | AQI Range | PM2.5 (24h) $\mu\text{g/m}^3$ | PM10 (24h) $\mu\text{g/m}^3$ | NO2 (24h) $\mu\text{g/m}^3$ | CO (8h) $\text{mg/m}^3$ |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Good** | 0 – 50 | 0 – 30 | 0 – 50 | 0 – 40 | 0.0 – 1.0 |
-| **Satisfactory** | 51 – 100 | 31 – 60 | 51 – 100 | 41 – 80 | 1.1 – 2.0 |
-| **Moderate** | 101 – 200 | 61 – 90 | 101 – 250 | 81 – 180 | 2.1 – 10.0 |
-| **Poor** | 201 – 300 | 91 – 120 | 251 – 350 | 181 – 280 | 10.1 – 17.0 |
-| **Very Poor** | 301 – 400 | 121 – 250 | 351 – 430 | 281 – 400 | 17.1 – 34.0 |
-| **Severe** | 401 – 500 | 250+ | 430+ | 400+ | 34.0+ |
+
+| Category         | AQI Range | PM2.5 (24h) $\mu\text{g/m}^3$ | PM10 (24h) $\mu\text{g/m}^3$ | NO2 (24h) $\mu\text{g/m}^3$ | CO (8h) $\text{mg/m}^3$ |
+| :--------------- | :-------- | :---------------------------- | :--------------------------- | :-------------------------- | :---------------------- |
+| **Good**         | 0 – 50    | 0 – 30                        | 0 – 50                       | 0 – 40                      | 0.0 – 1.0               |
+| **Satisfactory** | 51 – 100  | 31 – 60                       | 51 – 100                     | 41 – 80                     | 1.1 – 2.0               |
+| **Moderate**     | 101 – 200 | 61 – 90                       | 101 – 250                    | 81 – 180                    | 2.1 – 10.0              |
+| **Poor**         | 201 – 300 | 91 – 120                      | 251 – 350                    | 181 – 280                   | 10.1 – 17.0             |
+| **Very Poor**    | 301 – 400 | 121 – 250                     | 351 – 430                    | 281 – 400                   | 17.1 – 34.0             |
+| **Severe**       | 401 – 500 | 250+                          | 430+                         | 400+                        | 34.0+                   |
 
 ### Graded Response Action Plan (GRAP Stages I–IV)
+
 VayuShield automates the statutory anti-smog protocols defined by India's Commission for Air Quality Management (CAQM):
+
 - **Stage I (Poor AQI 201–300):** Dust control at construction sites, ban on open biomass/trash burning, anti-idling advisories.
 - **Stage II (Very Poor AQI 301–400):** Mechanized sweeping, dust suppressants, ban on diesel generator sets for non-emergency operations, synchronized traffic signals.
 - **Stage III (Severe AQI 401–450):** Ban on non-essential construction and demolition, restriction on BS-III petrol and BS-IV diesel LMVs, hybrid learning for primary schools.
 - **Stage IV (Severe+ AQI > 450):** Ban on commercial truck entry (except essential supplies), closure of educational institutions, 50% remote work mandates.
 
 ### Planetary Boundary Layer & Winter Thermal Inversion Traps
+
 Winter smog is exacerbated by radiation inversions: clear night skies cause the earth's surface to cool rapidly, trapping a layer of cold, dense air beneath warmer upper air.
 
 VayuShield computes a real-time **Smog Trap Index** ($0.0 \dots 1.0$) based on three meteorological vectors:
+
 1. **Atmospheric Dispersion Capacity:** $PBLH$ (Planetary Boundary Layer Height in meters).
    - $PBLH < 250\,\text{m} \implies$ severe ground confinement (score $0.95$)
    - $PBLH > 800\,\text{m} \implies$ active vertical dispersion (score $0.05$)
@@ -163,6 +174,7 @@ $$\text{VentScore}(t) = \left(1 - \frac{\text{AQI}(t)}{500}\right) \times 0.4 + 
 The application identifies the contiguous 2-hour window maximizing this score, preventing users from opening windows during dangerous inversion peaks (e.g. 05:00–08:30).
 
 ### Indoor Box-Filter & CADR / ACH Physics Engine
+
 Indoor aerosol concentration follows a mass-balance differential equation:
 
 $$V \frac{dC_{in}}{dt} = P \cdot k_v \cdot V \cdot C_{out} - (k_v + k_{purifier} + k_{dep}) \cdot V \cdot C_{in}$$
@@ -172,6 +184,7 @@ In steady state:
 $$C_{in} = \frac{P \cdot k_v}{k_v + \frac{\text{CADR}}{V} + k_{dep}} C_{out}$$
 
 Where:
+
 - $V$: Room volume ($\text{m}^3$)
 - $P$: Penetration factor through building envelope ($\approx 0.50$ for standard urban windows, $0.20$ for sealed weatherstripped frames)
 - $k_v$: Natural infiltration rate ($\text{h}^{-1}$)
@@ -182,11 +195,13 @@ Where:
 **Corsi-Rosenthal Box Configuration:** VayuShield models multi-filter box cubes (4 $\times$ MERV-13 filters + 20-inch box fan), which deliver up to **$550\,\text{m}^3/\text{h}$ CADR** at less than \$70 USD (₹5,500 INR), achieving a **75%–88% PM2.5 reduction** within 40 minutes in typical apartments.
 
 ### Mathematical Quantified Impact Calculations
+
 When the user adopts recommended habits, VayuShield calculates precise emissions avoided:
+
 1. **Personal PM2.5 Inhalation Saved:**
    $$\Delta \text{Inhaled} (\mu\text{g/day}) = V_{resp} \times (C_{unmitigated} - C_{mitigated}) \times \frac{t_{hours}}{24}$$
    Where adult tidal minute volume $V_{resp} \approx 15\,\text{m}^3/\text{day}$ ($0.625\,\text{m}^3/\text{h}$).
-2. **Weekly Avoided Greenhouse Gas ($\text{CO}_2\text{e}$):**
+2. **Weekly Avoided Greenhouse Gas ($\text{CO}\_2\text{e}$):**
    $$\Delta \text{CO}_2\text{e} (\text{kg/week}) = d_{km} \times \left(EF_{car} - EF_{alternative}\right) \times \text{trips/week}$$
    Where $EF_{petrol} = 0.192\,\text{kg/km}$, $EF_{diesel} = 0.171\,\text{kg/km}$, $EF_{ev} = 0.053\,\text{kg/km}$, $EF_{metro} = 0.028\,\text{kg/km}$.
 3. **Community Particulate Prevented:**
@@ -199,6 +214,7 @@ When the user adopts recommended habits, VayuShield calculates precise emissions
 VayuShield connects directly to the Google Generative Language REST API without intermediary backend proxies or bloated client SDK wrappers.
 
 ### Model Hierarchy & Multi-Provider Resilience Cascade
+
 VayuShield supports 4 Google Gemini models, providing flexible latency vs reasoning depth tradeoffs, backed by a 3-tier key and provider failover cascade:
 
 1. **Available Models:**
@@ -214,13 +230,16 @@ VayuShield supports 4 Google Gemini models, providing flexible latency vs reason
    - **Tier 3 (Safety Backup Gemini Key):** Ensures 100% continuous uptime and zero user disruption under all network and quota conditions.
 
 ### SerpAPI Google Maps Satellite & Geolocation Intelligence
+
 VayuShield integrates SerpAPI's Google Maps engine to deliver visual ground-truth geographic context for searched and geolocated cities:
+
 - **Aerial Satellite Thumbnail:** Displays real-time aerial satellite imagery corresponding to the exact urban coordinates.
 - **High-Precision Coordinates:** Fetches and displays exact latitude and longitude with micro-degree precision.
 - **Direct Satellite Layer Link:** One-click launch into Google Maps in full satellite view mode (`!1e3`), allowing users to inspect local ground topography, industrial corridors, and smog dispersion zones.
 - **Zero-Timeout Geolocation:** Optimized browser geolocation (`enableHighAccuracy: false`, 15-second timeout) combined with instant typed-city auto-resolution ensures instantaneous search even on WiFi/desktop laptops without hardware GPS.
 
 ### Strict Schema Enforcement & Zero-Leak Security
+
 - **Header-Only Authorization:** The Gemini API key is passed strictly via the HTTP request header:
   ```http
   x-goog-api-key: {apiKey}
@@ -237,6 +256,7 @@ VayuShield integrates SerpAPI's Google Maps engine to deliver visual ground-trut
   Every parsed response passes through strict TypeScript runtime validation (`validateSmogActionPlan`). If Gemini produces malformed JSON, a typed `GeminiSchemaError` is raised with a one-click UI retry trigger.
 
 ### Core GenAI Modules
+
 1. **Personalized Low-Emission Daily Routine Architect:**
    Synthesizes live hourly Open-Meteo forecasts with user lifestyle inputs (sensitivities, commute, housing, fuel) into a chronologically ordered, 24-hour time-blocked routine. Each block highlights the exact environmental rationale and a low-emission alternative.
 2. **Indoor Air Hacks & Sustainable Swaps Studio:**
@@ -263,7 +283,7 @@ sequenceDiagram
     User->>UI: Enters "Gurugram" or clicks GPS
     UI->>Loc: GET /v1/search?name=Gurugram
     Loc-->>UI: Coordinates (28.4595, 77.0266)
-    
+
     par Parallel Live Telemetry
         UI->>Telemetry: GET air-quality (PM2.5, PM10, NO2, SO2, CO, O3)
         UI->>Telemetry: GET forecast (Temp, RH, Wind, Boundary Layer Height)
@@ -276,7 +296,7 @@ sequenceDiagram
     User->>UI: Clicks "Generate Smog Action Plan"
     UI->>Gemini: POST /models/gemini-3.5-flash-lite:generateContent (with x-goog-api-key)
     Note over UI,Gemini: Injects Live Pollutants + Inversion Window + Family Profile
-    
+
     alt Primary Model Success
         Gemini-->>UI: Validated JSON Action Plan
     else HTTP 429 / 503 Retry Exhausted
@@ -294,11 +314,11 @@ sequenceDiagram
 
 VayuShield was engineered to be globally applicable while maintaining precision during extreme winter air pollution events:
 
-| Global Feature | How VayuShield Delivers |
-| :--- | :--- |
-| **Global Geocoding & Coordinates** | Open-Meteo geocoding covers any inhabited city, district, or town worldwide, with automatic coordinate-based browser geolocation fallback. |
-| **Multi-Standard Indexing** | Displays **US EPA AQI**, **European Air Quality Index**, and **Indian CPCB NAQI** concurrently so expatriates, travelers, and local families can compare benchmarks. |
-| **Global Winter Smog Zones** | Tested for inversion-prone basins globally: Delhi-NCR, Lahore, Beijing, Salt Lake City (USA), Santiago (Chile), Po Valley (Italy), and Tehran (Iran). |
+| Global Feature                      | How VayuShield Delivers                                                                                                                                               |
+| :---------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Global Geocoding & Coordinates**  | Open-Meteo geocoding covers any inhabited city, district, or town worldwide, with automatic coordinate-based browser geolocation fallback.                            |
+| **Multi-Standard Indexing**         | Displays **US EPA AQI**, **European Air Quality Index**, and **Indian CPCB NAQI** concurrently so expatriates, travelers, and local families can compare benchmarks.  |
+| **Global Winter Smog Zones**        | Tested for inversion-prone basins globally: Delhi-NCR, Lahore, Beijing, Salt Lake City (USA), Santiago (Chile), Po Valley (Italy), and Tehran (Iran).                 |
 | **Localized Regulatory Frameworks** | Seamlessly maps local policies (e.g. India's GRAP Stages I–IV) when operating in the subcontinent, while defaulting to WHO and US EPA clean air guidelines elsewhere. |
 
 ---
@@ -306,6 +326,7 @@ VayuShield was engineered to be globally applicable while maintaining precision 
 ## Accessibility (WCAG 2.1 AA) & Design System
 
 VayuShield was built from the ground up to achieve strict **WCAG 2.1 Level AA compliance**:
+
 - **Keyboard Navigation:** Full tab-order flow, visible high-contrast focus rings (`focus:ring-2 focus:ring-emerald-500`), and `Escape` key dismissal on modals and drawers.
 - **Skip Link:** A `SkipLink` component positioned at the very top of the DOM enables screen-reader and keyboard users to bypass header navigation and jump directly to `#main-content`.
 - **Live Regions (`aria-live="polite"`):** Asynchronous telemetry changes, loading spinners, and streaming copilot messages are announced without interrupting active navigation.
@@ -345,6 +366,7 @@ Tests       39 passed (39)
 ```
 
 ### Verification Pipeline Commands:
+
 ```bash
 # 1. TypeScript Static Typecheck
 npm run typecheck
@@ -367,11 +389,13 @@ npm run verify
 ## Local Development & Deployment Guide
 
 ### Prerequisites
+
 - Node.js `v18.0.0` or higher
 - npm `v9.0.0` or higher
 - A Google Gemini API Key ([Get one free from Google AI Studio](https://aistudio.google.com/))
 
 ### 1. Clone & Install
+
 ```bash
 git clone https://github.com/faizalmd2603/VayuShield.git
 cd VayuShield
@@ -379,19 +403,25 @@ npm install
 ```
 
 ### 2. Environment Configuration
+
 Create a `.env` file in the root directory (optional; you can also enter your key directly in the app's secure modal):
+
 ```env
 VITE_GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
 ### 3. Run Development Server
+
 ```bash
 npm run dev
 ```
+
 Open `http://localhost:5173` in your browser.
 
 ### 4. Deploy to Vercel
+
 VayuShield is pre-configured for instant zero-configuration deployment to Vercel:
+
 ```bash
 npx vercel --prod
 ```
@@ -399,4 +429,5 @@ npx vercel --prod
 ---
 
 ## License
+
 VayuShield is open-source software licensed under the [MIT License](LICENSE).

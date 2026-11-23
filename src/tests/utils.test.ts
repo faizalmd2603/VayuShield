@@ -123,10 +123,29 @@ describe('Executive Markdown Report Exporter', () => {
       uvIndex: 3,
     },
     hourlyForecast: [],
-    cpcbAqi: { aqi: 320, category: 'Very Poor', dominantPollutant: 'PM25', subIndices: { pm25: 320 } },
+    cpcbAqi: {
+      aqi: 320,
+      category: 'Very Poor',
+      dominantPollutant: 'PM25',
+      subIndices: { pm25: 320 },
+    },
     grapStage: 'Stage II (Very Poor)',
-    smogTrap: { riskLevel: 'Severe', boundaryLayerHeight: 200, windSpeed: 4, temperature: 15, explanation: 'Inversion' },
-    safestVentilation: { startHour: '13:00', endHour: '15:00', averagePm25: 70, boundaryLayerHeight: 800, windSpeed: 10, isSafestWindow: true, rationale: 'Midday mixing' },
+    smogTrap: {
+      riskLevel: 'Severe',
+      boundaryLayerHeight: 200,
+      windSpeed: 4,
+      temperature: 15,
+      explanation: 'Inversion',
+    },
+    safestVentilation: {
+      startHour: '13:00',
+      endHour: '15:00',
+      averagePm25: 70,
+      boundaryLayerHeight: 800,
+      windSpeed: 10,
+      isSafestWindow: true,
+      rationale: 'Midday mixing',
+    },
     lastUpdated: '2026-11-23T12:00:00Z',
   };
 
@@ -143,7 +162,11 @@ describe('Executive Markdown Report Exporter', () => {
         action: 'Seal balcony windows',
         whyNow: 'Low boundary layer',
         lowEmissionAlternative: 'Indoor workout',
-        directImpact: { personalPm25ReductionUgm3: 80, co2eAvoidedKg: 0.5, healthBenefit: 'Protects lungs' },
+        directImpact: {
+          personalPm25ReductionUgm3: 80,
+          co2eAvoidedKg: 0.5,
+          healthBenefit: 'Protects lungs',
+        },
       },
     ],
     indoorHacks: [

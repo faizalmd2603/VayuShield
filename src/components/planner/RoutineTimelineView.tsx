@@ -23,7 +23,9 @@ const RoutineCard: React.FC<{
     <div className="flex items-start gap-3.5">
       <button
         type="button"
-        onClick={() => { onToggle(step.id); }}
+        onClick={() => {
+          onToggle(step.id);
+        }}
         className={`w-6 h-6 rounded-lg mt-0.5 flex items-center justify-center border transition-all cursor-pointer shrink-0 ${
           isChecked
             ? 'bg-[#00FFC2] border-[#00FFC2] text-black shadow-sm'
@@ -57,11 +59,15 @@ const RoutineCard: React.FC<{
           </div>
         </div>
 
-        <p className="text-sm font-bold text-neutral-950 dark:text-white leading-snug">{step.action}</p>
+        <p className="text-sm font-bold text-neutral-950 dark:text-white leading-snug">
+          {step.action}
+        </p>
 
         <div className="flex items-start gap-1.5 text-xs text-neutral-500 font-mono">
           <WindIcon className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#00FFC2]" />
-          <span><strong>Rationale:</strong> {step.whyNow}</span>
+          <span>
+            <strong>Rationale:</strong> {step.whyNow}
+          </span>
         </div>
 
         <div className="text-xs p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800/50 text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-800">

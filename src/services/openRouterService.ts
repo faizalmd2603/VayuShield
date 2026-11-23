@@ -20,9 +20,7 @@ export interface OpenRouterStreamRequest {
 /**
  * Calls OpenRouter chat completions endpoint as a safety resilience alternative.
  */
-export async function callOpenRouterCompletion(
-  request: OpenRouterPlanRequest
-): Promise<string> {
+export async function callOpenRouterCompletion(request: OpenRouterPlanRequest): Promise<string> {
   const { apiKey, prompt, signal } = request;
   const trimmed = apiKey.trim();
   if (!trimmed) {
@@ -42,7 +40,8 @@ export async function callOpenRouterCompletion(
       messages: [
         {
           role: 'system',
-          content: 'You must respond ONLY with valid JSON conforming to the requested schema. No markdown formatting. Required top-level keys: summaryAdvisory, routines, indoorHacks, communityPlaybook.',
+          content:
+            'You must respond ONLY with valid JSON conforming to the requested schema. No markdown formatting. Required top-level keys: summaryAdvisory, routines, indoorHacks, communityPlaybook.',
         },
         { role: 'user', content: prompt },
       ],
@@ -60,11 +59,7 @@ export async function callOpenRouterCompletion(
         true
       );
     }
-    throw new GeminiApiError(
-      `OpenRouter API returned HTTP ${res.status}`,
-      'RATE_LIMITED',
-      true
-    );
+    throw new GeminiApiError(`OpenRouter API returned HTTP ${res.status}`, 'RATE_LIMITED', true);
   }
 
   const data = (await res.json()) as {
@@ -104,10 +99,7 @@ function extractDeltaFromLine(line: string): string | null {
 /**
  * Consumes an array of OpenRouter SSE lines and dispatches chunks.
  */
-function consumeDeltaLines(
-  lines: readonly string[],
-  onChunk: (chunk: string) => void
-): string {
+function consumeDeltaLines(lines: readonly string[], onChunk: (chunk: string) => void): string {
   let textAccum = '';
   for (const line of lines) {
     const text = extractDeltaFromLine(line);
@@ -122,9 +114,7 @@ function consumeDeltaLines(
 /**
  * Streams chat responses from OpenRouter using Server-Sent Events.
  */
-export async function streamOpenRouterChat(
-  request: OpenRouterStreamRequest
-): Promise<string> {
+export async function streamOpenRouterChat(request: OpenRouterStreamRequest): Promise<string> {
   const { apiKey, systemPrompt, messages, onChunk, signal } = request;
   const trimmed = apiKey.trim();
   if (!trimmed) {
@@ -132,9 +122,17 @@ export async function streamOpenRouterChat(
   }
 
   const controller = new AbortController();
-  const timer = setTimeout(() => { controller.abort(); }, 8_000);
+  const timer = setTimeout(() => {
+    controller.abort();
+  }, 8_000);
   if (signal) {
-    signal.addEventListener('abort', () => { controller.abort(); }, { once: true });
+    signal.addEventListener(
+      'abort',
+      () => {
+        controller.abort();
+      },
+      { once: true }
+    );
   }
 
   try {

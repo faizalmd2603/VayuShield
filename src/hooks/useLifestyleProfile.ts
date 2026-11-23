@@ -1,10 +1,6 @@
 import { useState, useCallback } from 'react';
 import type { LifestyleProfile } from '../types/profile';
-import {
-  DEFAULT_LIFESTYLE_PROFILE,
-  getStoredProfile,
-  setStoredProfile,
-} from '../utils/storage';
+import { DEFAULT_LIFESTYLE_PROFILE, getStoredProfile, setStoredProfile } from '../utils/storage';
 
 export interface UseLifestyleProfileResult {
   readonly profile: LifestyleProfile;

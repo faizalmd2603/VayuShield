@@ -9,11 +9,7 @@ import type { CombinedAirTelemetry } from '../types/airQuality';
 import { GeminiApiError } from '../types/errors';
 import type { GeminiModelName, VayuShieldPlan } from '../types/gemini';
 import type { LifestyleProfile } from '../types/profile';
-import {
-  clearSessionApiKey,
-  getSessionApiKey,
-  setSessionApiKey,
-} from '../utils/storage';
+import { clearSessionApiKey, getSessionApiKey, setSessionApiKey } from '../utils/storage';
 
 export interface UseGeminiPlannerResult {
   readonly apiKey: string;
@@ -118,10 +114,7 @@ export function useGeminiPlanner(): UseGeminiPlannerResult {
   }, []);
 
   const generatePlan = useCallback(
-    async (
-      telemetry: CombinedAirTelemetry,
-      profile: LifestyleProfile
-    ): Promise<void> => {
+    async (telemetry: CombinedAirTelemetry, profile: LifestyleProfile): Promise<void> => {
       if (!apiKey) {
         setError('Please configure your Google Gemini API Key first.');
         return;

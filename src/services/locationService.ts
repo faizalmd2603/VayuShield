@@ -83,10 +83,7 @@ export function getCurrentGpsPosition(): Promise<GeoLocation> {
   return new Promise((resolve, reject) => {
     if (!('geolocation' in navigator)) {
       reject(
-        new LocationError(
-          'Geolocation is not supported by your browser',
-          'POSITION_UNAVAILABLE'
-        )
+        new LocationError('Geolocation is not supported by your browser', 'POSITION_UNAVAILABLE')
       );
       return;
     }
@@ -104,8 +101,7 @@ export function getCurrentGpsPosition(): Promise<GeoLocation> {
         });
       },
       (err) => {
-        let code: 'PERMISSION_DENIED' | 'POSITION_UNAVAILABLE' | 'TIMEOUT' =
-          'POSITION_UNAVAILABLE';
+        let code: 'PERMISSION_DENIED' | 'POSITION_UNAVAILABLE' | 'TIMEOUT' = 'POSITION_UNAVAILABLE';
         if (err.code === 1) code = 'PERMISSION_DENIED';
         if (err.code === 3) code = 'TIMEOUT';
 

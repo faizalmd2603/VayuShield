@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { ExternalLinkIcon, MapPinIcon } from '../icons/Icons';
-import { fetchSerpApiMapLocation, getGoogleSatelliteUrl, type SerpApiMapResult } from '../../services/mapService';
+import {
+  fetchSerpApiMapLocation,
+  getGoogleSatelliteUrl,
+  type SerpApiMapResult,
+} from '../../services/mapService';
 import type { GeoLocation } from '../../types/airQuality';
 
 interface Props {
@@ -31,7 +35,9 @@ const MapHeaderBar: React.FC<HeaderProps> = ({ location, satUrl, mode, onSetMode
       <div className="flex items-center bg-neutral-100 dark:bg-neutral-800/90 rounded-lg p-0.5 border border-neutral-200 dark:border-neutral-700">
         <button
           type="button"
-          onClick={() => { onSetMode('interactive'); }}
+          onClick={() => {
+            onSetMode('interactive');
+          }}
           className={`px-2.5 py-1 text-[11px] font-mono rounded-md transition-colors ${
             mode === 'interactive'
               ? 'bg-[#00FFC2] text-neutral-950 font-bold shadow-sm'
@@ -43,7 +49,9 @@ const MapHeaderBar: React.FC<HeaderProps> = ({ location, satUrl, mode, onSetMode
         </button>
         <button
           type="button"
-          onClick={() => { onSetMode('satellite'); }}
+          onClick={() => {
+            onSetMode('satellite');
+          }}
           className={`px-2.5 py-1 text-[11px] font-mono rounded-md transition-colors ${
             mode === 'satellite'
               ? 'bg-[#00FFC2] text-neutral-950 font-bold shadow-sm'
@@ -111,12 +119,16 @@ const SatelliteViewFrame: React.FC<{
     ) : (
       <div className="text-center p-6 space-y-2">
         <MapPinIcon className="w-8 h-8 text-[#00FFC2] mx-auto animate-pulse" />
-        <p className="font-mono text-xs text-neutral-400">Synchronizing high-res satellite feed for {title}...</p>
+        <p className="font-mono text-xs text-neutral-400">
+          Synchronizing high-res satellite feed for {title}...
+        </p>
       </div>
     )}
     <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[10px] font-mono text-white/90 bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-neutral-800">
       <span>AERIAL SATELLITE SENSOR GRID</span>
-      <span>{location.latitude.toFixed(4)}° N, {location.longitude.toFixed(4)}° E</span>
+      <span>
+        {location.latitude.toFixed(4)}° N, {location.longitude.toFixed(4)}° E
+      </span>
     </div>
   </div>
 );
@@ -130,7 +142,10 @@ const MapFooterMeta: React.FC<{
     <div className="flex items-center gap-2">
       <span className="font-bold text-neutral-900 dark:text-neutral-100">{title}</span>
       <span className="text-neutral-400">•</span>
-      <span>{location.admin1 ? `${location.admin1}, ` : ''}{location.country}</span>
+      <span>
+        {location.admin1 ? `${location.admin1}, ` : ''}
+        {location.country}
+      </span>
     </div>
     <div className="flex items-center gap-3 text-[11px]">
       <span className="text-[#00FFC2] font-mono">STATUS: SYNCED</span>
@@ -156,10 +171,13 @@ export const LocationMapCard: React.FC<Props> = ({ location }) => {
       setMapData(data);
     });
 
-    return () => { controller.abort(); };
+    return () => {
+      controller.abort();
+    };
   }, [location.name, location.admin1]);
 
-  const satUrl = mapData?.satelliteUrl ?? getGoogleSatelliteUrl(location.latitude, location.longitude);
+  const satUrl =
+    mapData?.satelliteUrl ?? getGoogleSatelliteUrl(location.latitude, location.longitude);
 
   return (
     <section

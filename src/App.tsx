@@ -35,10 +35,19 @@ function useThemeSync(): [theme: 'light' | 'dark', toggleTheme: () => void] {
     setStoredTheme(theme);
   }, [theme]);
 
-  return [theme, () => { setTheme((t) => (t === 'light' ? 'dark' : 'light')); }];
+  return [
+    theme,
+    () => {
+      setTheme((t) => (t === 'light' ? 'dark' : 'light'));
+    },
+  ];
 }
 
-function exportPlanReport(plan: VayuShieldPlan, telemetry: CombinedAirTelemetry, impact: AggregateImpactResult): void {
+function exportPlanReport(
+  plan: VayuShieldPlan,
+  telemetry: CombinedAirTelemetry,
+  impact: AggregateImpactResult
+): void {
   const md = generateMarkdownReport(plan, telemetry, impact);
   const blob = new Blob([md], { type: 'text/markdown' });
   const url = URL.createObjectURL(blob);
@@ -53,13 +62,28 @@ export const App: React.FC = () => {
   const [theme, toggleTheme] = useThemeSync();
   const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
 
-  const { location, telemetry, isLoading: isAqLoading, error: aqError, selectLocation } = useLiveAirQuality();
+  const {
+    location,
+    telemetry,
+    isLoading: isAqLoading,
+    error: aqError,
+    selectLocation,
+  } = useLiveAirQuality();
   const { profile, updateProfile, resetProfile } = useLifestyleProfile();
   const {
-    apiKey, setApiKey, clearApiKey, hasValidApiKey,
-    selectedModel, setSelectedModel,
-    plan, isGenerating, error: genError,
-    checkedStepIds, toggleStep, generatePlan, aggregateImpact,
+    apiKey,
+    setApiKey,
+    clearApiKey,
+    hasValidApiKey,
+    selectedModel,
+    setSelectedModel,
+    plan,
+    isGenerating,
+    error: genError,
+    checkedStepIds,
+    toggleStep,
+    generatePlan,
+    aggregateImpact,
   } = useGeminiPlanner();
 
   const handleExport = (): void => {
@@ -75,14 +99,19 @@ export const App: React.FC = () => {
           hasValidKey={hasValidApiKey}
           theme={theme}
           onToggleTheme={toggleTheme}
-          onOpenApiKeyModal={() => { setIsKeyModalOpen(true); }}
+          onOpenApiKeyModal={() => {
+            setIsKeyModalOpen(true);
+          }}
         />
 
         <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
           <LocationSearchBar onSelectLocation={selectLocation} selectedLocation={location} />
 
           {aqError && (
-            <div role="alert" className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900 text-sm">
+            <div
+              role="alert"
+              className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900 text-sm"
+            >
               {aqError}
             </div>
           )}
@@ -97,15 +126,27 @@ export const App: React.FC = () => {
               <HourlyForecastChart hourly={telemetry.hourlyForecast} />
 
               <PlannerWorkspace
-                telemetry={telemetry} profile={profile}
-                onUpdateProfile={updateProfile} onResetProfile={resetProfile}
-                apiKey={apiKey} hasValidApiKey={hasValidApiKey}
-                onRequestApiKey={() => { setIsKeyModalOpen(true); }}
-                selectedModel={selectedModel} onSelectModel={setSelectedModel}
-                plan={plan} isGenerating={isGenerating} genError={genError}
-                onGeneratePlan={() => { void generatePlan(telemetry, profile); }}
-                checkedStepIds={checkedStepIds} onToggleStep={toggleStep}
-                aggregateImpact={aggregateImpact} onExport={handleExport}
+                telemetry={telemetry}
+                profile={profile}
+                onUpdateProfile={updateProfile}
+                onResetProfile={resetProfile}
+                apiKey={apiKey}
+                hasValidApiKey={hasValidApiKey}
+                onRequestApiKey={() => {
+                  setIsKeyModalOpen(true);
+                }}
+                selectedModel={selectedModel}
+                onSelectModel={setSelectedModel}
+                plan={plan}
+                isGenerating={isGenerating}
+                genError={genError}
+                onGeneratePlan={() => {
+                  void generatePlan(telemetry, profile);
+                }}
+                checkedStepIds={checkedStepIds}
+                onToggleStep={toggleStep}
+                aggregateImpact={aggregateImpact}
+                onExport={handleExport}
               />
             </>
           )}
@@ -116,8 +157,13 @@ export const App: React.FC = () => {
         <ApiKeyModal
           isOpen={isKeyModalOpen}
           currentKey={apiKey}
-          onClose={() => { setIsKeyModalOpen(false); }}
-          onSaveKey={(k) => { setApiKey(k); setIsKeyModalOpen(false); }}
+          onClose={() => {
+            setIsKeyModalOpen(false);
+          }}
+          onSaveKey={(k) => {
+            setApiKey(k);
+            setIsKeyModalOpen(false);
+          }}
           onClearKey={clearApiKey}
         />
       </div>

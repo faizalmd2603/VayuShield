@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { calculateRoomMetrics, estimateIndoorPm25, type IndoorPollutionEstimate, type RoomAeroMetrics } from '../../domain/indoorPhysics';
+import {
+  calculateRoomMetrics,
+  estimateIndoorPm25,
+  type IndoorPollutionEstimate,
+  type RoomAeroMetrics,
+} from '../../domain/indoorPhysics';
 import type { CombinedAirTelemetry } from '../../types/airQuality';
 import type { LifestyleProfile } from '../../types/profile';
 import { WindIcon } from '../icons/Icons';
@@ -15,11 +20,15 @@ const MetricsCards: React.FC<{
 }> = ({ roomMetrics, indoorEstimate }) => (
   <>
     <div className="p-5 rounded-2xl bg-white dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 space-y-3 font-mono hover:border-[#00FFC2]/50 transition-colors">
-      <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">[ PURIFIER SIZING ]</span>
+      <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+        [ PURIFIER SIZING ]
+      </span>
       <div className="space-y-2 text-xs">
         <div className="flex justify-between">
           <span className="text-neutral-500">Room Volume:</span>
-          <span className="font-bold text-neutral-900 dark:text-white">{roomMetrics.roomVolumeM3} m³</span>
+          <span className="font-bold text-neutral-900 dark:text-white">
+            {roomMetrics.roomVolumeM3} m³
+          </span>
         </div>
         <div className="flex justify-between">
           <span className="text-neutral-500">Required CADR:</span>
@@ -31,12 +40,15 @@ const MetricsCards: React.FC<{
         </div>
       </div>
       <div className="p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-sans">
-        <strong>DIY Corsi-Rosenthal:</strong> Box fan + 4x MERV-13 filters delivers ~450 CFM, fully adequate.
+        <strong>DIY Corsi-Rosenthal:</strong> Box fan + 4x MERV-13 filters delivers ~450 CFM, fully
+        adequate.
       </div>
     </div>
 
     <div className="p-5 rounded-2xl bg-white dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 space-y-3 font-mono hover:border-[#00FFC2]/50 transition-colors">
-      <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">[ INFILTRATION MODEL ]</span>
+      <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+        [ INFILTRATION MODEL ]
+      </span>
       <div className="space-y-2 text-xs">
         <div className="flex justify-between">
           <span className="text-neutral-500">Outdoor PM2.5:</span>
@@ -44,15 +56,20 @@ const MetricsCards: React.FC<{
         </div>
         <div className="flex justify-between">
           <span className="text-neutral-500">Indoor PM2.5:</span>
-          <span className="font-bold text-[#00FFC2]">{indoorEstimate.estimatedIndoorPm25} µg/m³</span>
+          <span className="font-bold text-[#00FFC2]">
+            {indoorEstimate.estimatedIndoorPm25} µg/m³
+          </span>
         </div>
         <div className="flex justify-between">
           <span className="text-neutral-500">Envelope Shield:</span>
-          <span className="font-bold text-neutral-900 dark:text-white">-{indoorEstimate.infiltrationReductionPercent}% Infiltration</span>
+          <span className="font-bold text-neutral-900 dark:text-white">
+            -{indoorEstimate.infiltrationReductionPercent}% Infiltration
+          </span>
         </div>
       </div>
       <div className="p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-sans">
-        <strong>Pulmonary Shield:</strong> Cuts ~{Math.round(indoorEstimate.dailyInhaledDoseMicrograms)} µg daily inhaled dose.
+        <strong>Pulmonary Shield:</strong> Cuts ~
+        {Math.round(indoorEstimate.dailyInhaledDoseMicrograms)} µg daily inhaled dose.
       </div>
     </div>
   </>
@@ -81,7 +98,9 @@ export const IndoorPhysicsLab: React.FC<Props> = ({ telemetry, profile }) => {
             <WindIcon className="w-5 h-5 text-sky-500" />
             Deterministic Indoor Aero-Physics Lab
           </h3>
-          <p className="text-xs text-slate-500">Live building envelope infiltration & CADR sizing math</p>
+          <p className="text-xs text-slate-500">
+            Live building envelope infiltration & CADR sizing math
+          </p>
         </div>
       </div>
 
@@ -93,8 +112,14 @@ export const IndoorPhysicsLab: React.FC<Props> = ({ telemetry, profile }) => {
               <span className="font-mono text-sky-600 dark:text-sky-400">{area} m²</span>
             </div>
             <input
-              type="range" min={10} max={120} step={2} value={area}
-              onChange={(e) => { setArea(Number(e.target.value)); }}
+              type="range"
+              min={10}
+              max={120}
+              step={2}
+              value={area}
+              onChange={(e) => {
+                setArea(Number(e.target.value));
+              }}
               className="w-full accent-sky-600 cursor-pointer"
             />
           </div>
@@ -102,11 +127,19 @@ export const IndoorPhysicsLab: React.FC<Props> = ({ telemetry, profile }) => {
           <div className="space-y-1">
             <div className="flex justify-between text-xs font-semibold text-slate-600 dark:text-slate-400">
               <span>Ceiling Height</span>
-              <span className="font-mono text-sky-600 dark:text-sky-400">{height.toFixed(1)} m</span>
+              <span className="font-mono text-sky-600 dark:text-sky-400">
+                {height.toFixed(1)} m
+              </span>
             </div>
             <input
-              type="range" min={2.4} max={4.5} step={0.1} value={height}
-              onChange={(e) => { setHeight(Number(e.target.value)); }}
+              type="range"
+              min={2.4}
+              max={4.5}
+              step={0.1}
+              value={height}
+              onChange={(e) => {
+                setHeight(Number(e.target.value));
+              }}
               className="w-full accent-sky-600 cursor-pointer"
             />
           </div>
@@ -117,8 +150,14 @@ export const IndoorPhysicsLab: React.FC<Props> = ({ telemetry, profile }) => {
               <span className="font-mono text-sky-600 dark:text-sky-400">{targetAch} ACH</span>
             </div>
             <input
-              type="range" min={2.0} max={8.0} step={0.5} value={targetAch}
-              onChange={(e) => { setTargetAch(Number(e.target.value)); }}
+              type="range"
+              min={2.0}
+              max={8.0}
+              step={0.5}
+              value={targetAch}
+              onChange={(e) => {
+                setTargetAch(Number(e.target.value));
+              }}
               className="w-full accent-sky-600 cursor-pointer"
             />
           </div>

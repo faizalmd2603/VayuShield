@@ -127,8 +127,7 @@ class HttpClient {
     } catch (err: unknown) {
       if (err instanceof NetworkError) throw err;
       const isAbort =
-        (err instanceof DOMException && err.name === 'AbortError') ||
-        controller.signal.aborted;
+        (err instanceof DOMException && err.name === 'AbortError') || controller.signal.aborted;
       if (isAbort) {
         throw new NetworkError('Request timed out or was cancelled', 408);
       }

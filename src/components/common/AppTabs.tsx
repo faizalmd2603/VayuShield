@@ -21,7 +21,10 @@ const TABS: readonly { id: TabId; label: string; code: string }[] = [
  */
 export const AppTabs: React.FC<Props> = ({ activeTab, onChangeTab }) => {
   return (
-    <nav aria-label="Application Sections" className="border-b border-neutral-200 dark:border-neutral-800/80">
+    <nav
+      aria-label="Application Sections"
+      className="border-b border-neutral-200 dark:border-neutral-800/80"
+    >
       <div role="tablist" className="flex items-center gap-2 overflow-x-auto py-2 -mb-px">
         {TABS.map((tab) => {
           const isActive = activeTab === tab.id;
@@ -34,14 +37,18 @@ export const AppTabs: React.FC<Props> = ({ activeTab, onChangeTab }) => {
               aria-selected={isActive}
               aria-label={tab.label}
               tabIndex={isActive ? 0 : -1}
-              onClick={() => { onChangeTab(tab.id); }}
+              onClick={() => {
+                onChangeTab(tab.id);
+              }}
               className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-mono uppercase tracking-wider rounded-full whitespace-nowrap transition-all cursor-pointer ${
                 isActive
                   ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 font-bold border border-neutral-700 dark:border-white shadow-sm'
                   : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white border border-transparent hover:border-neutral-200 dark:hover:border-neutral-800'
               }`}
             >
-              <span className={`text-[10px] ${isActive ? 'text-[#00FFC2]' : 'text-neutral-400'}`}>{tab.code}</span>
+              <span className={`text-[10px] ${isActive ? 'text-[#00FFC2]' : 'text-neutral-400'}`}>
+                {tab.code}
+              </span>
               <span>{tab.label}</span>
             </button>
           );

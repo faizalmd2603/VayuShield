@@ -31,7 +31,11 @@ export const StatusBanner: React.FC<Props> = ({ telemetry }) => {
               CPCB AQI {cpcbAqi.aqi} — {cpcbAqi.category}
             </p>
             <p className="text-xs text-neutral-500 dark:text-neutral-400">
-              Primary driver: <strong className="text-neutral-900 dark:text-white font-mono">{cpcbAqi.dominantPollutant}</strong> concentration.
+              Primary driver:{' '}
+              <strong className="text-neutral-900 dark:text-white font-mono">
+                {cpcbAqi.dominantPollutant}
+              </strong>{' '}
+              concentration.
             </p>
           </div>
         </div>
@@ -52,7 +56,8 @@ export const StatusBanner: React.FC<Props> = ({ telemetry }) => {
               Ceiling: {Math.round(smogTrap.boundaryLayerHeight)}m
             </p>
             <p className="text-xs text-neutral-500 dark:text-neutral-400">
-              Wind: {smogTrap.windSpeed} km/h • Temp: {smogTrap.temperature}°C. Trapping particulates.
+              Wind: {smogTrap.windSpeed} km/h • Temp: {smogTrap.temperature}°C. Trapping
+              particulates.
             </p>
           </div>
         </div>

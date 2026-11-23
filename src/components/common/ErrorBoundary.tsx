@@ -37,7 +37,8 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public override render(): ReactNode {
     if (this.state.hasError) {
-      const msg = this.state.errorMessage || (this.props.fallbackMessage ?? 'An unexpected error occurred.');
+      const msg =
+        this.state.errorMessage || (this.props.fallbackMessage ?? 'An unexpected error occurred.');
       return (
         <div
           role="alert"

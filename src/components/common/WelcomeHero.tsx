@@ -12,33 +12,52 @@ export const WelcomeHero: React.FC = () => {
           <span>AUTONOMOUS WINTER SMOG ASSISTANT</span>
         </div>
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-neutral-950 dark:text-white leading-[1.1]">
-          <span>Welcome to VayuShield</span><span className="text-[#00FFC2]">.</span>
+          <span>Welcome to VayuShield</span>
+          <span className="text-[#00FFC2]">.</span>
         </h1>
         <p className="text-xs font-mono uppercase tracking-widest text-[#00FFC2]">
           CLEAR AIR. SMARTER CHOICES. GROUND-LEVEL DISPERSION PHYSICS.
         </p>
         <p className="text-base sm:text-lg text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto font-normal leading-relaxed">
-          Ground-level thermal inversions trap hazardous particulates. VayuShield synthesizes live Open-Meteo atmospheric dispersion physics with Google Gemini GenAI to architect personalized routines and community playbooks.
+          Ground-level thermal inversions trap hazardous particulates. VayuShield synthesizes live
+          Open-Meteo atmospheric dispersion physics with Google Gemini GenAI to architect
+          personalized routines and community playbooks.
         </p>
       </div>
 
       {/* NK Studio Signature Metric Highlights */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-4">
         <div className="p-5 rounded-2xl border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-neutral-900/40 backdrop-blur-md text-left space-y-1 hover:border-[#00FFC2]/50 transition-colors">
-          <p className="text-3xl sm:text-4xl font-extrabold font-mono tracking-tight text-neutral-950 dark:text-white">-78%</p>
-          <p className="text-[10px] uppercase font-mono tracking-widest text-neutral-500">INDOOR EXPOSURE</p>
+          <p className="text-3xl sm:text-4xl font-extrabold font-mono tracking-tight text-neutral-950 dark:text-white">
+            -78%
+          </p>
+          <p className="text-[10px] uppercase font-mono tracking-widest text-neutral-500">
+            INDOOR EXPOSURE
+          </p>
         </div>
         <div className="p-5 rounded-2xl border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-neutral-900/40 backdrop-blur-md text-left space-y-1 hover:border-[#00FFC2]/50 transition-colors">
-          <p className="text-3xl sm:text-4xl font-extrabold font-mono tracking-tight text-neutral-950 dark:text-white">550 <span className="text-sm font-normal text-neutral-400">m³/h</span></p>
-          <p className="text-[10px] uppercase font-mono tracking-widest text-neutral-500">DIY CADR POWER</p>
+          <p className="text-3xl sm:text-4xl font-extrabold font-mono tracking-tight text-neutral-950 dark:text-white">
+            550 <span className="text-sm font-normal text-neutral-400">m³/h</span>
+          </p>
+          <p className="text-[10px] uppercase font-mono tracking-widest text-neutral-500">
+            DIY CADR POWER
+          </p>
         </div>
         <div className="p-5 rounded-2xl border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-neutral-900/40 backdrop-blur-md text-left space-y-1 hover:border-[#00FFC2]/50 transition-colors">
-          <p className="text-3xl sm:text-4xl font-extrabold font-mono tracking-tight text-[#00FFC2]">0</p>
-          <p className="text-[10px] uppercase font-mono tracking-widest text-neutral-500">MOCK DATA IN SOURCE</p>
+          <p className="text-3xl sm:text-4xl font-extrabold font-mono tracking-tight text-[#00FFC2]">
+            0
+          </p>
+          <p className="text-[10px] uppercase font-mono tracking-widest text-neutral-500">
+            MOCK DATA IN SOURCE
+          </p>
         </div>
         <div className="p-5 rounded-2xl border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-neutral-900/40 backdrop-blur-md text-left space-y-1 hover:border-[#00FFC2]/50 transition-colors">
-          <p className="text-3xl sm:text-4xl font-extrabold font-mono tracking-tight text-neutral-950 dark:text-white">100%</p>
-          <p className="text-[10px] uppercase font-mono tracking-widest text-neutral-500">PHYSICS GROUNDED</p>
+          <p className="text-3xl sm:text-4xl font-extrabold font-mono tracking-tight text-neutral-950 dark:text-white">
+            100%
+          </p>
+          <p className="text-[10px] uppercase font-mono tracking-widest text-neutral-500">
+            PHYSICS GROUNDED
+          </p>
         </div>
       </div>
 

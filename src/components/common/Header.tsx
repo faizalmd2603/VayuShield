@@ -54,7 +54,9 @@ export const Header: React.FC<Props> = ({
             aria-label="Configure Google Gemini API Key"
           >
             <KeyIcon className="w-3.5 h-3.5 text-[#00FFC2]" />
-            <span className="hidden xs:inline">{hasValidKey ? 'API Connected' : 'Connect Key'}</span>
+            <span className="hidden xs:inline">
+              {hasValidKey ? 'API Connected' : 'Connect Key'}
+            </span>
           </button>
 
           <button

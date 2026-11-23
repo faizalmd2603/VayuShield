@@ -119,7 +119,8 @@ describe('Google Gemini Integration Engine', () => {
         'Wet-mop basement parking ramps to curb resuspension',
       ],
       directCommunityImpact: 'Prevents 4.2 kg localized particulate resuspension daily',
-      advisoryNoticeText: 'Dear Residents: Stage II Smog Emergency Active. Please carpool and avoid DG sets.',
+      advisoryNoticeText:
+        'Dear Residents: Stage II Smog Emergency Active. Please carpool and avoid DG sets.',
     },
   });
 
@@ -131,18 +132,20 @@ describe('Google Gemini Integration Engine', () => {
     let capturedUrl = '';
     let capturedHeaders: HeadersInit | undefined;
 
-    vi.spyOn(globalThis, 'fetch').mockImplementationOnce((url: RequestInfo | URL, init?: RequestInit) => {
-      capturedUrl = toUrlString(url);
-      capturedHeaders = init?.headers;
-      return Promise.resolve({
-        ok: true,
-        status: 200,
-        json: () =>
-          Promise.resolve({
-            candidates: [{ content: { parts: [{ text: validPlanJson }] } }],
-          }),
-      } as unknown as Response);
-    });
+    vi.spyOn(globalThis, 'fetch').mockImplementationOnce(
+      (url: RequestInfo | URL, init?: RequestInit) => {
+        capturedUrl = toUrlString(url);
+        capturedHeaders = init?.headers;
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              candidates: [{ content: { parts: [{ text: validPlanJson }] } }],
+            }),
+        } as unknown as Response);
+      }
+    );
 
     await generateVayuShieldPlan({
       apiKey: dummyApiKey,
@@ -296,7 +299,10 @@ describe('Google Gemini Integration Engine', () => {
 
   it('safely auto-repairs unclosed JSON and strips trailing commas', () => {
     const brokenJson = '{"summaryAdvisory": "Keep indoors", "routines": [{"id": "r1",}],';
-    const parsed = safeParseJsonPlan(brokenJson) as { summaryAdvisory?: string; routines?: unknown[] };
+    const parsed = safeParseJsonPlan(brokenJson) as {
+      summaryAdvisory?: string;
+      routines?: unknown[];
+    };
     expect(parsed.summaryAdvisory).toBe('Keep indoors');
     expect(Array.isArray(parsed.routines)).toBe(true);
   });

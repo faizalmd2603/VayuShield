@@ -1,9 +1,4 @@
-import type {
-  CommunityPlaybook,
-  IndoorHack,
-  RoutineStep,
-  VayuShieldPlan,
-} from '../types/gemini';
+import type { CommunityPlaybook, IndoorHack, RoutineStep, VayuShieldPlan } from '../types/gemini';
 
 /**
  * Official Google Gemini structured JSON response schema.
@@ -117,12 +112,16 @@ export const VAYUSHIELD_PLAN_RESPONSE_SCHEMA = {
  */
 export function cleanJsonString(raw: string): string {
   const trimmed = raw.trim();
-  const withoutFences = trimmed.replace(/^```(?:json)?/i, '').replace(/```$/g, '').trim();
+  const withoutFences = trimmed
+    .replace(/^```(?:json)?/i, '')
+    .replace(/```$/g, '')
+    .trim();
   const firstBrace = withoutFences.indexOf('{');
   const lastBrace = withoutFences.lastIndexOf('}');
-  const candidate = (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace)
-    ? withoutFences.slice(firstBrace, lastBrace + 1)
-    : withoutFences;
+  const candidate =
+    firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace
+      ? withoutFences.slice(firstBrace, lastBrace + 1)
+      : withoutFences;
   return candidate.replace(/,\s*([}\]])/g, '$1');
 }
 
@@ -191,18 +190,26 @@ function coerceEffort(eff: unknown): IndoorHack['effortLevel'] {
 }
 
 function coerceRoutineStep(r: Record<string, unknown>, i: number): RoutineStep {
-  const imp = typeof r.directImpact === 'object' && r.directImpact !== null
-    ? (r.directImpact as Record<string, unknown>)
-    : {};
+  const imp =
+    typeof r.directImpact === 'object' && r.directImpact !== null
+      ? (r.directImpact as Record<string, unknown>)
+      : {};
   return {
     id: safeString(r.id, undefined, `routine-${i + 1}`),
     timeSlot: safeString(r.timeSlot, r.time, '07:00 - 09:00'),
     periodLabel: safeString(r.periodLabel, r.label, 'Peak Inversion Window'),
     action: safeString(r.action, r.activity, 'Indoor air protection and filtration lock'),
     whyNow: safeString(r.whyNow, r.reason, 'High ground-level particulate concentration'),
-    lowEmissionAlternative: safeString(r.lowEmissionAlternative, r.alternative, 'Electric or mass transit commute'),
+    lowEmissionAlternative: safeString(
+      r.lowEmissionAlternative,
+      r.alternative,
+      'Electric or mass transit commute'
+    ),
     directImpact: {
-      personalPm25ReductionUgm3: parseImpactNumber(imp.personalPm25ReductionUgm3 ?? r.personalImpactUgm3, 35),
+      personalPm25ReductionUgm3: parseImpactNumber(
+        imp.personalPm25ReductionUgm3 ?? r.personalImpactUgm3,
+        35
+      ),
       co2eAvoidedKg: parseImpactNumber(imp.co2eAvoidedKg ?? r.carbonImpactKg, 1.5),
       healthBenefit: safeString(imp.healthBenefit, r.healthBenefit, 'Reduced airway irritation'),
     },
@@ -228,12 +235,28 @@ function coerceIndoorHack(h: unknown, i: number): IndoorHack {
     id: safeString(obj.id, undefined, `hack-${i + 1}`),
     category: coerceCategory(obj.category),
     title: safeString(obj.title, undefined, 'Door Draught Seal'),
-    description: safeString(obj.description, obj.action, 'Install silicone seals on entrance frames to curb ingress'),
-    directHealthImpact: safeString(obj.directHealthImpact, obj.healthImpact, 'Reduces indoor PM2.5 infiltration by 35%'),
-    directEmissionImpact: safeString(obj.directEmissionImpact, obj.emissionImpact, 'Zero added energy draw'),
+    description: safeString(
+      obj.description,
+      obj.action,
+      'Install silicone seals on entrance frames to curb ingress'
+    ),
+    directHealthImpact: safeString(
+      obj.directHealthImpact,
+      obj.healthImpact,
+      'Reduces indoor PM2.5 infiltration by 35%'
+    ),
+    directEmissionImpact: safeString(
+      obj.directEmissionImpact,
+      obj.emissionImpact,
+      'Zero added energy draw'
+    ),
     estimatedCost: safeString(obj.estimatedCost, obj.cost, '₹0 / Free'),
     effortLevel: coerceEffort(obj.effortLevel),
-    achCadrImprovement: safeString(obj.achCadrImprovement, obj.achImprovement, '+1.2 ACH Infiltration Barrier'),
+    achCadrImprovement: safeString(
+      obj.achCadrImprovement,
+      obj.achImprovement,
+      '+1.2 ACH Infiltration Barrier'
+    ),
   };
 }
 
@@ -256,29 +279,47 @@ function coerceCommunityPlaybook(target: unknown): CommunityPlaybook {
         currentGrapContext: 'GRAP Mitigation Protocols Active',
         actionChecklist: stringItems,
         directCommunityImpact: 'Prevents 4+ kg particulate emissions across 500+ residents',
-        advisoryNoticeText: 'Official Winter Smog Advisory: Inversion conditions active. Please halt non-essential combustion and carpool.',
+        advisoryNoticeText:
+          'Official Winter Smog Advisory: Inversion conditions active. Please halt non-essential combustion and carpool.',
       };
     }
   }
 
   const obj = resolvePlaybookTarget(target);
   const list = Array.isArray(obj.actionChecklist) ? obj.actionChecklist : [];
-  const checklist = list.length > 0
-    ? list.filter((item): item is string => typeof item === 'string')
-    : [
-        'Halt diesel generators for non-essential common areas',
-        'Implement mechanized wet-mop sweeping on society roads',
-        'Establish clean air respite rooms in common areas',
-      ];
+  const checklist =
+    list.length > 0
+      ? list.filter((item): item is string => typeof item === 'string')
+      : [
+          'Halt diesel generators for non-essential common areas',
+          'Implement mechanized wet-mop sweeping on society roads',
+          'Establish clean air respite rooms in common areas',
+        ];
 
   return {
     id: safeString(obj.id, undefined, 'playbook-rwa'),
     title: safeString(obj.title, undefined, 'Community & RWA Anti-Smog Directive'),
-    targetAudience: safeString(obj.targetAudience, obj.audience, 'Apartment residents, RWAs, schools'),
-    currentGrapContext: safeString(obj.currentGrapContext, obj.grapStage, 'GRAP Mitigation Protocols Active'),
+    targetAudience: safeString(
+      obj.targetAudience,
+      obj.audience,
+      'Apartment residents, RWAs, schools'
+    ),
+    currentGrapContext: safeString(
+      obj.currentGrapContext,
+      obj.grapStage,
+      'GRAP Mitigation Protocols Active'
+    ),
     actionChecklist: checklist,
-    directCommunityImpact: safeString(obj.directCommunityImpact, obj.communityImpact, 'Prevents 4+ kg particulate emissions across 500+ residents'),
-    advisoryNoticeText: safeString(obj.advisoryNoticeText, obj.notice, 'Official Winter Smog Advisory: Inversion conditions active. Please halt non-essential combustion and carpool.'),
+    directCommunityImpact: safeString(
+      obj.directCommunityImpact,
+      obj.communityImpact,
+      'Prevents 4+ kg particulate emissions across 500+ residents'
+    ),
+    advisoryNoticeText: safeString(
+      obj.advisoryNoticeText,
+      obj.notice,
+      'Official Winter Smog Advisory: Inversion conditions active. Please halt non-essential combustion and carpool.'
+    ),
   };
 }
 
@@ -317,17 +358,19 @@ export function coerceAndNormalizePlan(
     throw new Error('Invalid JSON input for plan');
   }
   const o = raw as Record<string, unknown>;
-  const summary = safeString(o.summaryAdvisory, o.summary, 'Action plan synchronized with live air quality telemetry.');
+  const summary = safeString(
+    o.summaryAdvisory,
+    o.summary,
+    'Action plan synchronized with live air quality telemetry.'
+  );
 
   const rawRoutines = extractRawRoutines(o.routines);
-  const routines = rawRoutines.length > 0
-    ? rawRoutines.map(coerceRoutineStep)
-    : [coerceRoutineStep({}, 0)];
+  const routines =
+    rawRoutines.length > 0 ? rawRoutines.map(coerceRoutineStep) : [coerceRoutineStep({}, 0)];
 
   const rawHacks = Array.isArray(o.indoorHacks) ? (o.indoorHacks as unknown[]) : [];
-  const indoorHacks = rawHacks.length > 0
-    ? rawHacks.map(coerceIndoorHack)
-    : [coerceIndoorHack({}, 0)];
+  const indoorHacks =
+    rawHacks.length > 0 ? rawHacks.map(coerceIndoorHack) : [coerceIndoorHack({}, 0)];
 
   const communityPlaybook = coerceCommunityPlaybook(o.communityPlaybook);
 
@@ -351,10 +394,7 @@ function isRoutineStep(item: unknown): item is RoutineStep {
   if (typeof c.id !== 'string' || typeof c.action !== 'string') return false;
   if (typeof c.directImpact !== 'object' || c.directImpact === null) return false;
   const imp = c.directImpact as Record<string, unknown>;
-  return (
-    typeof imp.personalPm25ReductionUgm3 === 'number' &&
-    typeof imp.co2eAvoidedKg === 'number'
-  );
+  return typeof imp.personalPm25ReductionUgm3 === 'number' && typeof imp.co2eAvoidedKg === 'number';
 }
 
 /**

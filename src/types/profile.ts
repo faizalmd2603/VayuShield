@@ -20,22 +20,13 @@ export type HousingType =
   | 'dense_urban_cluster';
 
 export type VentilationType =
-  | 'sealed_hvac'
-  | 'split_ac_no_fresh_air'
-  | 'natural_cross_ventilation'
-  | 'leaky_unsealed_windows';
+  'sealed_hvac' | 'split_ac_no_fresh_air' | 'natural_cross_ventilation' | 'leaky_unsealed_windows';
 
 export type PurifierStatus =
-  | 'hepa_purifier_active'
-  | 'basic_filter_fan'
-  | 'diy_corsi_rosenthal'
-  | 'none';
+  'hepa_purifier_active' | 'basic_filter_fan' | 'diy_corsi_rosenthal' | 'none';
 
 export type CookingFuel =
-  | 'lpg_gas'
-  | 'induction_electric'
-  | 'piped_natural_gas'
-  | 'biomass_wood_coal';
+  'lpg_gas' | 'induction_electric' | 'piped_natural_gas' | 'biomass_wood_coal';
 
 export type CommuteMode =
   | 'metro_subway'
@@ -46,10 +37,7 @@ export type CommuteMode =
   | 'walking_cycling'
   | 'work_from_home';
 
-export type BudgetTier =
-  | 'zero_cost'
-  | 'budget_conscious'
-  | 'flexible_wellness';
+export type BudgetTier = 'zero_cost' | 'budget_conscious' | 'flexible_wellness';
 
 export type CommunityRole =
   | 'apartment_rwa_member'

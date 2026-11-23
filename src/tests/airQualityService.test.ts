@@ -117,8 +117,6 @@ describe('Open-Meteo Air Quality & Location Services', () => {
       statusText: 'Service Unavailable',
     } as unknown as Response);
 
-    await expect(fetchAirQualityTelemetry(sampleLocation)).rejects.toThrow(
-      NetworkError
-    );
+    await expect(fetchAirQualityTelemetry(sampleLocation)).rejects.toThrow(NetworkError);
   });
 });

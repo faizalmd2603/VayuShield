@@ -120,9 +120,13 @@ async function callGeminiRest(
   }, API_CONFIG.GEMINI.TIMEOUT_MS);
 
   if (signal) {
-    signal.addEventListener('abort', () => {
-      controller.abort();
-    }, { once: true });
+    signal.addEventListener(
+      'abort',
+      () => {
+        controller.abort();
+      },
+      { once: true }
+    );
   }
 
   try {
@@ -241,19 +245,13 @@ function parseAndValidatePlan(
   try {
     parsed = safeParseJsonPlan(textOutput);
   } catch {
-    throw new GeminiApiError(
-      'Failed to parse JSON response from Gemini',
-      'SCHEMA_INVALID'
-    );
+    throw new GeminiApiError('Failed to parse JSON response from Gemini', 'SCHEMA_INVALID');
   }
 
   try {
     return coerceAndNormalizePlan(parsed, locationName, modelUsed);
   } catch {
-    throw new GeminiApiError(
-      'Gemini response failed runtime schema validation',
-      'SCHEMA_INVALID'
-    );
+    throw new GeminiApiError('Gemini response failed runtime schema validation', 'SCHEMA_INVALID');
   }
 }
 
@@ -294,11 +292,7 @@ async function attemptPlanWithValidation(
 export async function generateVayuShieldPlan(
   request: PlanGenerationRequest
 ): Promise<VayuShieldPlan> {
-  const {
-    telemetry,
-    profile,
-    model = API_CONFIG.GEMINI.MODELS.PRIMARY,
-  } = request;
+  const { telemetry, profile, model = API_CONFIG.GEMINI.MODELS.PRIMARY } = request;
 
   const promptText = buildPlanPrompt(telemetry, profile);
   const payload = {
@@ -407,10 +401,18 @@ async function tryFetchStream(
 ): Promise<Response | null> {
   const url = `${API_CONFIG.GEMINI.BASE_URL}/${model}:streamGenerateContent?alt=sse`;
   const controller = new AbortController();
-  const timer = setTimeout(() => { controller.abort(); }, 5_000);
+  const timer = setTimeout(() => {
+    controller.abort();
+  }, 5_000);
 
   if (signal) {
-    signal.addEventListener('abort', () => { controller.abort(); }, { once: true });
+    signal.addEventListener(
+      'abort',
+      () => {
+        controller.abort();
+      },
+      { once: true }
+    );
   }
 
   try {
@@ -506,12 +508,7 @@ async function consumeSseStream(
  * @returns Accumulated complete message string
  */
 export async function streamGeminiChat(request: ChatStreamRequest): Promise<string> {
-  const {
-    messages,
-    telemetry,
-    profile,
-    onChunk,
-  } = request;
+  const { messages, telemetry, profile, onChunk } = request;
 
   const systemContext = `You are VayuShield Smog Copilot. Live context: ${telemetry.location.name}, CPCB AQI: ${telemetry.cpcbAqi.aqi} (${telemetry.cpcbAqi.category}), Dominant: ${telemetry.cpcbAqi.dominantPollutant}, GRAP: ${telemetry.grapStage}, User Housing: ${profile.housingType}, Commute: ${profile.commuteMode}. Provide actionable, science-grounded answers. In every answer with action suggestions, include a concise Direct Choice Impact section.`;
 

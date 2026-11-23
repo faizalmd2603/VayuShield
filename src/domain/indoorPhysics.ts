@@ -67,17 +67,14 @@ export function estimateIndoorPm25(
   >
 ): IndoorPollutionEstimate {
   const safeOutdoor = Math.max(0, outdoorPm25);
-  const infilFactor =
-    VENTILATION_INFILTRATION_FACTORS[profile.ventilationType];
+  const infilFactor = VENTILATION_INFILTRATION_FACTORS[profile.ventilationType];
   const purifierEff = PURIFIER_EFFICIENCY[profile.purifierStatus];
   const cookingGen = COOKING_INTERNAL_PM25_UGM3[profile.cookingFuel] * 0.15;
 
   // Infiltration portion reduced by filtration
   const penetratedOutdoor = safeOutdoor * infilFactor * (1 - purifierEff);
   const internalRemnant = cookingGen * (1 - purifierEff * 0.7);
-  const estimatedIndoorPm25 = Math.round(
-    Math.max(2, penetratedOutdoor + internalRemnant)
-  );
+  const estimatedIndoorPm25 = Math.round(Math.max(2, penetratedOutdoor + internalRemnant));
 
   const reductionPercent =
     safeOutdoor > 0
@@ -89,10 +86,8 @@ export function estimateIndoorPm25(
 
   // Daily inhaled dose = concentration (ug/m3) * respiration (m3/day)
   // 16 hours indoor + 8 hours outdoor assumption
-  const indoorInhaled =
-    estimatedIndoorPm25 * HUMAN_PHYSIOLOGY.ADULT_RESPIRATION_M3_PER_HOUR * 16;
-  const outdoorInhaled =
-    safeOutdoor * HUMAN_PHYSIOLOGY.ADULT_RESPIRATION_M3_PER_HOUR * 8;
+  const indoorInhaled = estimatedIndoorPm25 * HUMAN_PHYSIOLOGY.ADULT_RESPIRATION_M3_PER_HOUR * 16;
+  const outdoorInhaled = safeOutdoor * HUMAN_PHYSIOLOGY.ADULT_RESPIRATION_M3_PER_HOUR * 8;
   const totalDailyDose = Math.round(indoorInhaled + outdoorInhaled);
 
   let adequacy: 'Optimal' | 'Acceptable' | 'Critical Deficit' = 'Optimal';
