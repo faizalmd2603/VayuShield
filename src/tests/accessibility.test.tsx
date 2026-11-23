@@ -100,4 +100,39 @@ describe('WCAG 2.1 AA Accessibility & Keyboard Suite', () => {
     await userEvent.keyboard('{Escape}');
     expect(onClose).toHaveBeenCalled();
   });
+
+  it('toggles theme correctly via header theme button and is accessible', async () => {
+    let currentTheme: 'light' | 'dark' = 'light';
+    const onToggle = vi.fn(() => {
+      currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+    });
+
+    const { rerender, container } = render(
+      <Header
+        locationName="London"
+        hasValidKey={true}
+        theme={currentTheme}
+        onToggleTheme={onToggle}
+        onOpenApiKeyModal={vi.fn()}
+      />
+    );
+
+    const toggleBtn = screen.getByRole('button', { name: 'Switch to Dark Mode' });
+    expect(toggleBtn).toBeInTheDocument();
+    await userEvent.click(toggleBtn);
+    expect(onToggle).toHaveBeenCalledTimes(1);
+
+    rerender(
+      <Header
+        locationName="London"
+        hasValidKey={true}
+        theme="dark"
+        onToggleTheme={onToggle}
+        onOpenApiKeyModal={vi.fn()}
+      />
+    );
+
+    expect(screen.getByRole('button', { name: 'Switch to Light Mode' })).toBeInTheDocument();
+    expect(await axe(container)).toHaveNoViolations();
+  });
 });

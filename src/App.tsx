@@ -10,14 +10,46 @@ import { HourlyForecastChart } from './components/location/HourlyForecastChart';
 import { LiveTelemetryGrid } from './components/location/LiveTelemetryGrid';
 import { LocationSearchBar } from './components/location/LocationSearchBar';
 import { PlannerWorkspace } from './components/planner/PlannerWorkspace';
+import type { AggregateImpactResult } from './domain/impactCalculator';
 import { useGeminiPlanner } from './hooks/useGeminiPlanner';
 import { useLifestyleProfile } from './hooks/useLifestyleProfile';
 import { useLiveAirQuality } from './hooks/useLiveAirQuality';
+import type { CombinedAirTelemetry } from './types/airQuality';
+import type { VayuShieldPlan } from './types/gemini';
 import { generateMarkdownReport } from './utils/exportReport';
 import { getStoredTheme, setStoredTheme } from './utils/storage';
 
-export const App: React.FC = () => {
+function useThemeSync(): [theme: 'light' | 'dark', toggleTheme: () => void] {
   const [theme, setTheme] = useState<'light' | 'dark'>(getStoredTheme);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+      root.style.colorScheme = 'dark';
+    } else {
+      root.classList.remove('dark');
+      root.style.colorScheme = 'light';
+    }
+    setStoredTheme(theme);
+  }, [theme]);
+
+  return [theme, () => { setTheme((t) => (t === 'light' ? 'dark' : 'light')); }];
+}
+
+function exportPlanReport(plan: VayuShieldPlan, telemetry: CombinedAirTelemetry, impact: AggregateImpactResult): void {
+  const md = generateMarkdownReport(plan, telemetry, impact);
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `VayuShield-${telemetry.location.name}-${new Date().toISOString().slice(0, 10)}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export const App: React.FC = () => {
+  const [theme, toggleTheme] = useThemeSync();
   const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
 
   const { location, telemetry, isLoading: isAqLoading, error: aqError, selectLocation } = useLiveAirQuality();
@@ -29,21 +61,8 @@ export const App: React.FC = () => {
     checkedStepIds, toggleStep, generatePlan, aggregateImpact,
   } = useGeminiPlanner();
 
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-    setStoredTheme(theme);
-  }, [theme]);
-
   const handleExport = (): void => {
-    if (!plan || !telemetry) return;
-    const md = generateMarkdownReport(plan, telemetry, aggregateImpact);
-    const blob = new Blob([md], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `VayuShield-${telemetry.location.name}-${new Date().toISOString().slice(0, 10)}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
+    if (plan && telemetry) exportPlanReport(plan, telemetry, aggregateImpact);
   };
 
   return (
@@ -54,7 +73,7 @@ export const App: React.FC = () => {
           locationName={telemetry?.location.name}
           hasValidKey={hasValidApiKey}
           theme={theme}
-          onToggleTheme={() => { setTheme((t) => (t === 'light' ? 'dark' : 'light')); }}
+          onToggleTheme={toggleTheme}
           onOpenApiKeyModal={() => { setIsKeyModalOpen(true); }}
         />
 
